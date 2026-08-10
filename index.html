@@ -36,9 +36,10 @@
         }
         .readonly-hidden { display: none !important; }
         
+        /* Cấu hình chuẩn trang A4: lề trái/phải 20mm (2cm), lề trên bắt đầu từ đỉnh */
         #pdfTemplate {
             width: 210mm;
-            padding: 15mm;
+            padding: 0;
             background: white;
             color: #0f172a;
             font-family: sans-serif;
@@ -334,7 +335,7 @@
         </div>
     </div>
 
-    <!-- FORM MẪU BÁO CÁO CHUẨN ĐỂ XUẤT PDF -->
+    <!-- FORM MẪU BÁO CÁO CHUẨN ĐỂ XUẤT PDF (CĂN LỀ ĐỐI XỨNG 2CM) -->
     <div id="pdfTemplate" class="hidden">
         <div class="flex justify-between items-start mb-3">
             <div class="text-center w-5/12">
@@ -972,8 +973,9 @@
             const element = document.getElementById('pdfTemplate');
             element.classList.remove('hidden');
 
+            // Cấu hình lề trái/phải 20mm (2cm), lề trên bắt đầu từ 0 (đầu trang)
             const opt = {
-                margin:       10,
+                margin:       [0, 20, 10, 20], 
                 filename:     filename,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true, letterRendering: true },

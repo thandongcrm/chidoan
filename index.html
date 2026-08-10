@@ -36,7 +36,7 @@
         }
         .readonly-hidden { display: none !important; }
         
-        /* Cấu hình chuẩn A4, co giãn vừa vặn tránh mất góc lề phải */
+        /* Cấu hình khung PDF chuẩn tuyệt đối trên A4 */
         #pdfTemplate {
             width: 170mm;
             padding: 0;
@@ -366,7 +366,7 @@
         </div>
     </div>
 
-    <!-- FORM MẪU BÁO CÁO CHUẨN ĐỂ XUẤT PDF (TRÁNH MẤT GÓC, ĐỦ NỘI DUNG) -->
+    <!-- FORM MẪU BÁO CÁO CHUẨN ĐỂ XUẤT PDF -->
     <div id="pdfTemplate" class="hidden">
         <div class="flex justify-between items-start mb-3">
             <div class="text-center w-5/12">
@@ -408,8 +408,8 @@
                         <th class="border border-slate-400 p-1 w-6 text-center">STT</th>
                         <th class="border border-slate-400 p-1 w-24">Thời gian</th>
                         <th class="border border-slate-400 p-1">Nội dung thu</th>
+                        <th class="border border-slate-400 p-1 w-20 text-right">Số tiền</th>
                         <th class="border border-slate-400 p-1 w-28">Người thu</th>
-                        <th class="border border-slate-400 p-1 w-20 text-right">Số tiền (VNĐ)</th>
                     </tr>
                 </thead>
                 <tbody id="pdfTableThu"></tbody>
@@ -424,8 +424,8 @@
                         <th class="border border-slate-400 p-1 w-6 text-center">STT</th>
                         <th class="border border-slate-400 p-1 w-24">Thời gian</th>
                         <th class="border border-slate-400 p-1">Nội dung chi</th>
+                        <th class="border border-slate-400 p-1 w-20 text-right">Số tiền</th>
                         <th class="border border-slate-400 p-1 w-28">Người chi</th>
-                        <th class="border border-slate-400 p-1 w-20 text-right">Số tiền (VNĐ)</th>
                     </tr>
                 </thead>
                 <tbody id="pdfTableChi"></tbody>
@@ -1014,8 +1014,8 @@
                     <td class="border border-slate-400 p-1 text-center">${idx + 1}</td>
                     <td class="border border-slate-400 p-1">${formatDateTime(item.ngaygio)}</td>
                     <td class="border border-slate-400 p-1">${item.noidung}</td>
-                    <td class="border border-slate-400 p-1">${item.nguoi}</td>
                     <td class="border border-slate-400 p-1 text-right font-semibold">${formatMoney(item.sotien)}</td>
+                    <td class="border border-slate-400 p-1">${item.nguoi}</td>
                 </tr>
             `).join('');
 
@@ -1025,8 +1025,8 @@
                     <td class="border border-slate-400 p-1 text-center">${idx + 1}</td>
                     <td class="border border-slate-400 p-1">${formatDateTime(item.ngaygio)}</td>
                     <td class="border border-slate-400 p-1">${item.noidung}</td>
-                    <td class="border border-slate-400 p-1">${item.nguoi}</td>
                     <td class="border border-slate-400 p-1 text-right font-semibold">${formatMoney(item.sotien)}</td>
+                    <td class="border border-slate-400 p-1">${item.nguoi}</td>
                 </tr>
             `).join('');
 
@@ -1041,7 +1041,6 @@
             const element = document.getElementById('pdfTemplate');
             element.classList.remove('hidden');
 
-            // Căn lề đối xứng 2cm (20mm) hai bên, lề trên 10mm
             const opt = {
                 margin:       [10, 20, 10, 20],
                 filename:     filename,

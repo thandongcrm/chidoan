@@ -36,15 +36,15 @@
         }
         .readonly-hidden { display: none !important; }
         
-        /* Cấu hình khung PDF chuẩn tuyệt đối trên A4 */
+        /* Form văn bản hành chính chuẩn A4 */
         #pdfTemplate {
-            width: 180mm;
+            width: 210mm;
             margin: 0 auto;
-            padding: 0;
+            padding: 10mm 15mm;
             background: white;
-            color: #0f172a;
-            font-family: sans-serif;
-            font-size: 9.5px;
+            color: #000000;
+            font-family: 'Times New Roman', Times, serif, sans-serif;
+            font-size: 11px;
         }
         #pdfTemplate table {
             width: 100%;
@@ -61,7 +61,8 @@
         #pdfTemplate td, #pdfTemplate th {
             word-wrap: break-word;
             overflow: hidden;
-            padding: 4px 6px !important;
+            padding: 4px 5px !important;
+            border: 1px solid #333333 !important;
         }
     </style>
 </head>
@@ -368,101 +369,112 @@
         </div>
     </div>
 
-    <!-- FORM MẪU BÁO CÁO CHUẨN ĐỂ XUẤT PDF -->
+    <!-- FORM MẪU BÁO CÁO CHUẨN VĂN THƯ HÀNH CHÍNH -->
     <div id="pdfTemplate" class="hidden">
-        <div class="flex justify-between items-start mb-3">
-            <div class="text-center w-5/12">
-                <p class="font-bold uppercase text-[9px]">ĐOÀN TNCS HỒ CHÍ MINH</p>
-                <p class="font-bold text-[9px]">ĐOÀN XÃ CƯ M'TA</p>
-                <p class="font-bold text-[9px] underline uppercase mt-0.5">CHI ĐOÀN BUÔN HAI - ĐẮK</p>
-            </div>
-            <div class="text-center w-7/12">
-                <p class="font-bold uppercase text-[9px]">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</p>
-                <p class="font-bold text-[9px] underline">Độc lập - Tự do - Hạnh phúc</p>
-            </div>
-        </div>
+        <!-- QUỐC HIỆU TIÊU NGỮ -->
+        <table style="border: none !important; margin-bottom: 15px;">
+            <tr style="border: none !important;">
+                <td style="border: none !important; text-align: center; width: 45%; vertical-align: top;">
+                    <p style="font-weight: bold; font-size: 10px; margin: 0; text-transform: uppercase;">ĐOÀN TNCS HỒ CHÍ MINH</p>
+                    <p style="font-weight: bold; font-size: 10px; margin: 2px 0;">ĐOÀN XÃ CƯ M'TA</p>
+                    <p style="font-weight: bold; font-size: 10px; margin: 0; text-decoration: underline; text-transform: uppercase;">CHI ĐOÀN BUÔN HAI - ĐẮK</p>
+                </td>
+                <td style="border: none !important; text-align: center; width: 55%; vertical-align: top;">
+                    <p style="font-weight: bold; font-size: 10px; margin: 0; text-transform: uppercase;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</p>
+                    <p style="font-weight: bold; font-size: 10.5px; margin: 2px 0; text-decoration: underline;">Độc lập - Tự do - Hạnh phúc</p>
+                </td>
+            </tr>
+        </table>
 
-        <div class="text-right italic text-[9px] mb-2">
+        <!-- NGÀY THÁNG ĐỊA PHƯƠNG -->
+        <div style="text-align: right; font-style: italic; font-size: 10px; margin-bottom: 12px;">
             <span id="pdfCurrentDate">Buôn Hai - Đắk, ngày ... tháng ... năm 2026</span>
         </div>
 
-        <div class="text-center mb-3">
-            <h2 id="pdfMainTitle" class="font-black text-xs uppercase">BÁO CÁO THU CHI TÀI CHÍNH</h2>
-            <h3 id="pdfSubTitle" class="font-bold text-[10px] uppercase text-youthOrange mt-0.5">Nội dung...</h3>
+        <!-- TIÊU ĐỀ BÁO CÁO -->
+        <div style="text-align: center; margin-bottom: 15px;">
+            <h2 id="pdfMainTitle" style="font-weight: bold; font-size: 12px; text-transform: uppercase; margin: 0 0 3px 0;">BÁO CÁO THU CHI TÀI CHÍNH</h2>
+            <h3 id="pdfSubTitle" style="font-weight: bold; font-size: 11px; text-transform: uppercase; margin: 0; color: #b45309;">Nội dung...</h3>
         </div>
 
-        <div class="mb-3 space-y-1">
-            <div class="flex items-center space-x-1">
-                <span class="font-bold flex-shrink-0 text-[10px]">Kính gửi:</span>
-                <input type="text" id="pdfKingGui" value="Ban Tự quản Buôn Hai - Đắk" class="w-full font-bold bg-transparent border-b border-dashed border-slate-400 focus:outline-none text-[10px]">
+        <!-- KÍNH GỬI & CĂN CỨ -->
+        <div style="margin-bottom: 15px; font-size: 10.5px; line-height: 1.4;">
+            <div style="margin-bottom: 5px;">
+                <span style="font-weight: bold;">Kính gửi:</span>
+                <input type="text" id="pdfKingGui" value="Ban Tự quản Buôn Hai - Đắk" style="font-weight: bold; background: transparent; border: none; border-bottom: 1px dashed #000; width: 85%; font-family: inherit; font-size: inherit;">
             </div>
-            <div class="flex items-start space-x-1 pt-0.5">
-                <span class="font-bold flex-shrink-0 text-[10px]">Căn cứ:</span>
-                <textarea id="pdfCanCu" rows="2" class="w-full bg-transparent border border-slate-300 rounded p-1 text-[9px] focus:outline-none">Căn cứ kế hoạch tổ chức các hoạt động phong trào thanh thiếu nhi và thực tế công tác tài chính của Chi đoàn Buôn Hai - Đắk.</textarea>
+            <div>
+                <span style="font-weight: bold;">Căn cứ:</span>
+                <textarea id="pdfCanCu" rows="2" style="width: 100%; background: transparent; border: 1px solid #999; padding: 3px; font-size: 10px; font-family: inherit; resize: none;">Căn cứ kế hoạch tổ chức các hoạt động phong trào thanh thiếu nhi và thực tế công tác tài chính của Chi đoàn Buôn Hai - Đắk.</textarea>
             </div>
         </div>
 
-        <div class="mb-3">
-            <p class="font-bold uppercase text-[9px] mb-1 text-youthBlue">I. PHẦN THU KINH PHÍ</p>
-            <table class="w-full border-collapse border border-slate-400 text-[9px]">
+        <!-- PHẦN I: THU KINH PHÍ -->
+        <div style="margin-bottom: 12px;">
+            <p style="font-weight: bold; font-size: 10px; text-transform: uppercase; margin: 0 0 4px 0; color: #0369a1;">I. PHẦN THU KINH PHÍ</p>
+            <table>
                 <thead>
-                    <tr class="bg-slate-200">
-                        <th class="border border-slate-400 p-1 w-8 text-center">STT</th>
-                        <th class="border border-slate-400 p-1 w-24">Thời gian</th>
-                        <th class="border border-slate-400 p-1">Nội dung thu</th>
-                        <th class="border border-slate-400 p-1 w-24 text-right">Số tiền</th>
-                        <th class="border border-slate-400 p-1 w-28">Người thu</th>
+                    <tr style="background-color: #f1f5f9; text-align: center; font-weight: bold; font-size: 9.5px;">
+                        <th style="width: 7%;">STT</th>
+                        <th style="width: 23%;">Thời gian</th>
+                        <th style="width: 35%;">Nội dung thu</th>
+                        <th style="width: 20%; text-align: right;">Số tiền (VNĐ)</th>
+                        <th style="width: 15%;">Người thu</th>
                     </tr>
                 </thead>
-                <tbody id="pdfTableThu"></tbody>
+                <tbody id="pdfTableThu" style="font-size: 9.5px;"></tbody>
             </table>
         </div>
 
-        <div class="mb-3">
-            <p class="font-bold uppercase text-[9px] mb-1 text-youthOrange">II. PHẦN CHI KINH PHÍ</p>
-            <table class="w-full border-collapse border border-slate-400 text-[9px]">
+        <!-- PHẦN II: CHI KINH PHÍ -->
+        <div style="margin-bottom: 12px;">
+            <p style="font-weight: bold; font-size: 10px; text-transform: uppercase; margin: 0 0 4px 0; color: #c2410c;">II. PHẦN CHI KINH PHÍ</p>
+            <table>
                 <thead>
-                    <tr class="bg-slate-200">
-                        <th class="border border-slate-400 p-1 w-8 text-center">STT</th>
-                        <th class="border border-slate-400 p-1 w-24">Thời gian</th>
-                        <th class="border border-slate-400 p-1">Nội dung chi</th>
-                        <th class="border border-slate-400 p-1 w-24 text-right">Số tiền</th>
-                        <th class="border border-slate-400 p-1 w-28">Người chi</th>
+                    <tr style="background-color: #f1f5f9; text-align: center; font-weight: bold; font-size: 9.5px;">
+                        <th style="width: 7%;">STT</th>
+                        <th style="width: 23%;">Thời gian</th>
+                        <th style="width: 35%;">Nội dung chi</th>
+                        <th style="width: 20%; text-align: right;">Số tiền (VNĐ)</th>
+                        <th style="width: 15%;">Người chi</th>
                     </tr>
                 </thead>
-                <tbody id="pdfTableChi"></tbody>
+                <tbody id="pdfTableChi" style="font-size: 9.5px;"></tbody>
             </table>
         </div>
 
-        <div class="mb-3 bg-slate-50 border border-slate-300 p-2 rounded">
-            <p class="font-bold uppercase text-[9px] mb-1">III. TỔNG KẾT CÂN ĐỐI QUỸ</p>
-            <div class="flex justify-between py-0.5 border-b border-slate-200 text-[9px]">
-                <span>- Tổng thu:</span>
-                <span id="pdfSumThu" class="font-bold text-youthBlue">0 đ</span>
+        <!-- PHẦN III: TỔNG KẾT CÂN ĐỐI QUỸ -->
+        <div style="margin-bottom: 15px; border: 1px solid #666; padding: 6px 10px; background-color: #fafafa;">
+            <p style="font-weight: bold; font-size: 10px; text-transform: uppercase; margin: 0 0 4px 0;">III. TỔNG KẾT CÂN ĐỐI QUỸ</p>
+            <div style="display: flex; justify-content: space-between; font-size: 10px; padding: 2px 0; border-bottom: 1px dotted #ccc;">
+                <span>- Tổng thu kinh phí:</span>
+                <span id="pdfSumThu" style="font-weight: bold; color: #0369a1;">0 đ</span>
             </div>
-            <div class="flex justify-between py-0.5 border-b border-slate-200 text-[9px]">
-                <span>- Tổng chi:</span>
-                <span id="pdfSumChi" class="font-bold text-youthOrange">0 đ</span>
+            <div style="display: flex; justify-content: space-between; font-size: 10px; padding: 2px 0; border-bottom: 1px dotted #ccc;">
+                <span>- Tổng chi kinh phí:</span>
+                <span id="pdfSumChi" style="font-weight: bold; color: #c2410c;">0 đ</span>
             </div>
-            <div class="flex justify-between py-0.5 text-emerald-700 font-bold text-[10px]">
-                <span>- Số dư tồn quỹ (Thu - Chi):</span>
+            <div style="display: flex; justify-content: space-between; font-size: 10.5px; padding: 3px 0; font-weight: bold; color: #15803d;">
+                <span>- Số dư tồn quỹ thực tế (Thu - Chi):</span>
                 <span id="pdfSumBalance">0 đ</span>
             </div>
         </div>
 
-        <div class="flex justify-between mt-4">
-            <div class="text-center w-5/12">
-                <p class="font-bold uppercase text-[9px]">BAN TỰ QUẢN BUÔN HAI - ĐẮK</p>
-                <p class="italic text-[8px]">(Ký, ghi rõ họ tên)</p>
-                <div class="h-14"></div>
-            </div>
-            <div class="text-center w-5/12">
-                <p class="font-bold uppercase text-[9px]">BÍ THƯ CHI ĐOÀN</p>
-                <p class="italic text-[8px]">(Ký, ghi rõ họ tên)</p>
-                <div class="h-10"></div>
-                <p class="font-bold uppercase text-[10px]">Trần Vũ Lực</p>
-            </div>
-        </div>
+        <!-- PHẦN CHỮ KÝ TRÌNH KÍ -->
+        <table style="border: none !important; margin-top: 15px;">
+            <tr style="border: none !important;">
+                <td style="border: none !important; text-align: center; width: 50%; vertical-align: top;">
+                    <p style="font-weight: bold; font-size: 10px; text-transform: uppercase; margin: 0;">BAN TỰ QUẢN BUÔN HAI - ĐẮK</p>
+                    <p style="font-style: italic; font-size: 9px; margin: 2px 0 35px 0;">(Ký, ghi rõ họ tên)</p>
+                    <p style="font-weight: bold; font-size: 10px; margin: 0; text-transform: uppercase; visibility: hidden;">Chữ ký</p>
+                </td>
+                <td style="border: none !important; text-align: center; width: 50%; vertical-align: top;">
+                    <p style="font-weight: bold; font-size: 10px; text-transform: uppercase; margin: 0;">BÍ THƯ CHI ĐOÀN</p>
+                    <p style="font-style: italic; font-size: 9px; margin: 2px 0 35px 0;">(Ký, ghi rõ họ tên, đóng dấu nếu có)</p>
+                    <p style="font-weight: bold; font-size: 10.5px; margin: 0; text-transform: uppercase;">Trần Vũ Lực</p>
+                </td>
+            </tr>
+        </table>
     </div>
 
     <!-- SCRIPT XỬ LÝ -->
@@ -1011,24 +1023,24 @@
 
         function buildPDFTablesAndSave(thuList, chiList, filename) {
             const pdfTableThu = document.getElementById('pdfTableThu');
-            pdfTableThu.innerHTML = thuList.length === 0 ? `<tr><td colspan="5" class="border border-slate-400 p-2 text-center italic">Không có dữ liệu thu</td></tr>` : thuList.map((item, idx) => `
+            pdfTableThu.innerHTML = thuList.length === 0 ? `<tr><td colspan="5" style="text-align: center; font-style: italic; padding: 6px;">Không có dữ liệu thu</td></tr>` : thuList.map((item, idx) => `
                 <tr>
-                    <td class="border border-slate-400 p-1 text-center">${idx + 1}</td>
-                    <td class="border border-slate-400 p-1">${formatDateTime(item.ngaygio)}</td>
-                    <td class="border border-slate-400 p-1">${item.noidung}</td>
-                    <td class="border border-slate-400 p-1 text-right font-semibold">${formatMoney(item.sotien)}</td>
-                    <td class="border border-slate-400 p-1">${item.nguoi}</td>
+                    <td style="text-align: center;">${idx + 1}</td>
+                    <td>${formatDateTime(item.ngaygio)}</td>
+                    <td>${item.noidung}</td>
+                    <td style="text-align: right; font-weight: bold;">${formatMoney(item.sotien)}</td>
+                    <td>${item.nguoi}</td>
                 </tr>
             `).join('');
 
             const pdfTableChi = document.getElementById('pdfTableChi');
-            pdfTableChi.innerHTML = chiList.length === 0 ? `<tr><td colspan="5" class="border border-slate-400 p-2 text-center italic">Không có dữ liệu chi</td></tr>` : chiList.map((item, idx) => `
+            pdfTableChi.innerHTML = chiList.length === 0 ? `<tr><td colspan="5" style="text-align: center; font-style: italic; padding: 6px;">Không có dữ liệu chi</td></tr>` : chiList.map((item, idx) => `
                 <tr>
-                    <td class="border border-slate-400 p-1 text-center">${idx + 1}</td>
-                    <td class="border border-slate-400 p-1">${formatDateTime(item.ngaygio)}</td>
-                    <td class="border border-slate-400 p-1">${item.noidung}</td>
-                    <td class="border border-slate-400 p-1 text-right font-semibold">${formatMoney(item.sotien)}</td>
-                    <td class="border border-slate-400 p-1">${item.nguoi}</td>
+                    <td style="text-align: center;">${idx + 1}</td>
+                    <td>${formatDateTime(item.ngaygio)}</td>
+                    <td>${item.noidung}</td>
+                    <td style="text-align: right; font-weight: bold;">${formatMoney(item.sotien)}</td>
+                    <td>${item.nguoi}</td>
                 </tr>
             `).join('');
 

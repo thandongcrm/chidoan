@@ -36,7 +36,6 @@
         }
         .readonly-hidden { display: none !important; }
         
-        /* Cấu hình chuẩn trang A4: lề trái/phải 20mm (2cm), lề trên bắt đầu từ đỉnh */
         #pdfTemplate {
             width: 210mm;
             padding: 0;
@@ -139,10 +138,17 @@
                     </div>
                 </div>
 
-                <button onclick="openGlobalReportModal()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs py-3.5 rounded-2xl shadow-md flex items-center justify-center space-x-2 transition-all">
-                    <i class="fa-solid fa-file-invoice-dollar text-sm"></i>
-                    <span>BÁO CÁO TỔNG HỢP TOÀN CHI ĐOÀN (THEO KHOẢNG NGÀY)</span>
-                </button>
+                <div class="space-y-2">
+                    <button onclick="openGlobalReportModal()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs py-3 rounded-2xl shadow-md flex items-center justify-center space-x-2 transition-all">
+                        <i class="fa-solid fa-file-invoice-dollar text-sm"></i>
+                        <span>BÁO CÁO TỔNG HỢP TOÀN CHI ĐOÀN (THEO KHOẢNG NGÀY)</span>
+                    </button>
+                    <!-- Nút Tải Về Nhanh Tại Trang Chủ -->
+                    <button onclick="openGlobalDownloadModal()" class="w-full bg-gradient-to-r from-youthBlue to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white font-bold text-xs py-3 rounded-2xl shadow-md flex items-center justify-center space-x-2 transition-all">
+                        <i class="fa-solid fa-cloud-arrow-down text-sm"></i>
+                        <span>TẢI VỀ FILE PDF BÁO CÁO NHANH</span>
+                    </button>
+                </div>
 
                 <!-- Thẻ tạo hoạt động mới -->
                 <div id="cardCreateActivity" class="bg-white rounded-2xl shadow-md border-2 border-orange-200 p-4 relative overflow-hidden">
@@ -331,6 +337,25 @@
             <div class="flex space-x-2 pt-2">
                 <button onclick="closeGlobalReportModal()" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs py-2.5 rounded-xl">Đóng</button>
                 <button onclick="exportGlobalPDF()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2.5 rounded-xl">Xem & Tải PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL TẢI VỀ NHANH THEO KHOẢNG NGÀY -->
+    <div id="globalDownloadModal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-3 hidden">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-4 space-y-3 shadow-xl">
+            <h3 class="font-extrabold text-youthBlue text-xs uppercase border-b pb-2"><i class="fa-solid fa-cloud-arrow-down mr-1"></i> Tải về file PDF báo cáo nhanh</h3>
+            <div>
+                <label class="block text-[11px] font-bold text-slate-600 mb-1">Từ ngày</label>
+                <input type="date" id="downloadFromDate" class="w-full text-xs p-2.5 rounded-xl border border-slate-300">
+            </div>
+            <div>
+                <label class="block text-[11px] font-bold text-slate-600 mb-1">Đến ngày</label>
+                <input type="date" id="downloadToDate" class="w-full text-xs p-2.5 rounded-xl border border-slate-300">
+            </div>
+            <div class="flex space-x-2 pt-2">
+                <button onclick="closeGlobalDownloadModal()" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs py-2.5 rounded-xl">Đóng</button>
+                <button onclick="executeGlobalDownload()" class="flex-1 bg-youthBlue hover:bg-sky-600 text-white font-bold text-xs py-2.5 rounded-xl">Tải Về Ngay</button>
             </div>
         </div>
     </div>
@@ -528,6 +553,8 @@
             document.getElementById('actTo').value = new Date().toISOString().slice(0, 10);
             document.getElementById('globalFromDate').value = new Date().toISOString().slice(0, 10);
             document.getElementById('globalToDate').value = new Date().toISOString().slice(0, 10);
+            document.getElementById('downloadFromDate').value = new Date().toISOString().slice(0, 10);
+            document.getElementById('downloadToDate').value = new Date().toISOString().slice(0, 10);
 
             db.ref('staffs').on('value', (snapshot) => {
                 if (snapshot.exists()) {
@@ -907,6 +934,41 @@
         function openGlobalReportModal() { document.getElementById('globalReportModal').classList.remove('hidden'); }
         function closeGlobalReportModal() { document.getElementById('globalReportModal').classList.add('hidden'); }
 
+        function openGlobalDownloadModal() { document.getElementById('globalDownloadModal').classList.remove('hidden'); }
+        function closeGlobalDownloadModal() { document.getElementById('globalDownloadModal').classList.add('hidden'); }
+
+        function executeGlobalDownload() {
+            const fromDate = document.getElementById('downloadFromDate').value;
+            const toDate = document.getElementById('downloadToDate').value;
+            if(!fromDate || !toDate) { alert('Vui lòng chọn đầy đủ từ ngày và đến ngày!'); return; }
+
+            let allThu = [];
+            let allChi = [];
+
+            Object.values(activitiesData).forEach(act => {
+                if(act.thu) {
+                    Object.values(act.thu).forEach(item => {
+                        const itemDate = item.ngaygio.slice(0, 10);
+                        if(itemDate >= fromDate && itemDate <= toDate) allThu.push(item);
+                    });
+                }
+                if(act.chi) {
+                    Object.values(act.chi).forEach(item => {
+                        const itemDate = item.ngaygio.slice(0, 10);
+                        if(itemDate >= fromDate && itemDate <= toDate) allChi.push(item);
+                    });
+                }
+            });
+
+            const today = new Date();
+            document.getElementById('pdfCurrentDate').innerText = `Buôn Hai - Đắk, ngày ${today.getDate()} tháng ${today.getMonth() + 1} năm ${today.getFullYear()}`;
+            document.getElementById('pdfMainTitle').innerText = "BÁO CÁO TỔNG HỢP THU CHI TOÀN CHI ĐOÀN";
+            document.getElementById('pdfSubTitle').innerText = `Từ ngày ${fromDate} đến ngày ${toDate}`;
+            
+            closeGlobalDownloadModal();
+            buildPDFTablesAndSave(allThu, allChi, `BaoCaoTongHop_${fromDate}_den_${toDate}.pdf`);
+        }
+
         function exportGlobalPDF() {
             const fromDate = document.getElementById('globalFromDate').value;
             const toDate = document.getElementById('globalToDate').value;
@@ -973,9 +1035,8 @@
             const element = document.getElementById('pdfTemplate');
             element.classList.remove('hidden');
 
-            // Cấu hình lề trái/phải 20mm (2cm), lề trên bắt đầu từ 0 (đầu trang)
             const opt = {
-                margin:       [0, 20, 10, 20], 
+                margin:       [0, 20, 10, 20],
                 filename:     filename,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true, letterRendering: true },

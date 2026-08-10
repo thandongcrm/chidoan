@@ -36,19 +36,19 @@
         }
         .readonly-hidden { display: none !important; }
         
-        /* Cấu hình khung PDF chuẩn tuyệt đối trên A4 */
+        /* Cấu hình khung PDF chuẩn tuyệt đối khổ A4 (210mm) */
         #pdfTemplate {
-            width: 170mm;
-            padding: 0;
+            width: 210mm;
+            padding: 10mm 15mm;
             background: white;
             color: #0f172a;
             font-family: sans-serif;
-            font-size: 10px;
+            font-size: 9.5px;
         }
         #pdfTemplate table {
-            page-break-inside: auto;
             width: 100%;
             table-layout: fixed;
+            border-collapse: collapse;
         }
         #pdfTemplate tr {
             page-break-inside: avoid;
@@ -60,6 +60,7 @@
         #pdfTemplate td, #pdfTemplate th {
             word-wrap: break-word;
             overflow: hidden;
+            padding: 4px 6px !important;
         }
     </style>
 </head>
@@ -405,10 +406,10 @@
             <table class="w-full border-collapse border border-slate-400 text-[9px]">
                 <thead>
                     <tr class="bg-slate-200">
-                        <th class="border border-slate-400 p-1 w-6 text-center">STT</th>
+                        <th class="border border-slate-400 p-1 w-8 text-center">STT</th>
                         <th class="border border-slate-400 p-1 w-24">Thời gian</th>
                         <th class="border border-slate-400 p-1">Nội dung thu</th>
-                        <th class="border border-slate-400 p-1 w-20 text-right">Số tiền</th>
+                        <th class="border border-slate-400 p-1 w-24 text-right">Số tiền</th>
                         <th class="border border-slate-400 p-1 w-28">Người thu</th>
                     </tr>
                 </thead>
@@ -421,10 +422,10 @@
             <table class="w-full border-collapse border border-slate-400 text-[9px]">
                 <thead>
                     <tr class="bg-slate-200">
-                        <th class="border border-slate-400 p-1 w-6 text-center">STT</th>
+                        <th class="border border-slate-400 p-1 w-8 text-center">STT</th>
                         <th class="border border-slate-400 p-1 w-24">Thời gian</th>
                         <th class="border border-slate-400 p-1">Nội dung chi</th>
-                        <th class="border border-slate-400 p-1 w-20 text-right">Số tiền</th>
+                        <th class="border border-slate-400 p-1 w-24 text-right">Số tiền</th>
                         <th class="border border-slate-400 p-1 w-28">Người chi</th>
                     </tr>
                 </thead>
@@ -1042,7 +1043,7 @@
             element.classList.remove('hidden');
 
             const opt = {
-                margin:       [10, 20, 10, 20],
+                margin:       [10, 10, 10, 10],
                 filename:     filename,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true, letterRendering: true, windowWidth: 800 },

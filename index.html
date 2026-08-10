@@ -10,6 +10,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- html2pdf.js để xuất file PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <!-- Firebase SDKs (Compat version) -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-database-compat.js"></script>
+
     <script>
         tailwind.config = {
             theme: {
@@ -41,15 +46,21 @@
     <!-- MAIN CONTENT -->
     <main class="max-w-md w-full mx-auto p-3 space-y-4 mb-16 flex-grow">
 
-        <!-- MÀN HÌNH 1: DANH SÁCH HOẠT ĐỘNG -->
+        <!-- MÀN HÌNH 1: DANH SÁCH HOẠT ĐỘNG & NÚT BÁO CÁO TỔNG HỢP -->
         <div id="screenActivities" class="space-y-4">
+            <!-- Nút mở modal Báo cáo toàn chi đoàn theo ngày -->
+            <button onclick="openGlobalReportModal()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs py-3.5 rounded-2xl shadow-md flex items-center justify-center space-x-2 transition-all">
+                <i class="fa-solid fa-file-invoice-dollar text-sm"></i>
+                <span>BÁO CÁO TỔNG HỢP TOÀN CHI ĐOÀN (THEO KHOẢNG NGÀY)</span>
+            </button>
+
             <!-- Thẻ tạo hoạt động mới -->
             <div class="bg-white rounded-2xl shadow-md border-2 border-orange-200 p-4 relative overflow-hidden">
-                <div class="absolute top-0 right-0 bg-youthOrange text-white text-[9px] font-bold px-3 py-1 rounded-bl-xl uppercase">Quản lý quỹ</div>
+                <div class="absolute top-0 right-0 bg-youthOrange text-white text-[9px] font-bold px-3 py-1 rounded-bl-xl uppercase">Firebase Realtime</div>
                 <h3 class="text-xs font-black text-youthOrange uppercase mb-3 flex items-center">
                     <i class="fa-solid fa-folder-plus mr-1.5 text-sm"></i> Tạo Hoạt Động Thu / Chi Mới
                 </h3>
-                <input type="hidden" id="editActId" value="-1">
+                <input type="hidden" id="editActId" value="">
                 <div class="space-y-2.5">
                     <div>
                         <label class="block text-[11px] font-bold text-slate-600 mb-1">Tên hoạt động</label>
@@ -78,14 +89,13 @@
                     <span id="actCount" class="text-[10px] bg-blue-100 text-youthBlue px-2 py-0.5 rounded-full">0 hoạt động</span>
                 </h3>
                 <div id="activityListContainer" class="space-y-2 max-h-80 overflow-y-auto pr-1">
-                    <p class="text-center text-slate-400 text-xs py-4">Chưa có hoạt động nào được tạo</p>
+                    <p class="text-center text-slate-400 text-xs py-4">Đang tải dữ liệu từ cơ sở dữ liệu...</p>
                 </div>
             </div>
         </div>
 
         <!-- MÀN HÌNH 2: CHI TIẾT THU / CHI CỦA HOẠT ĐỘNG -->
         <div id="screenDetail" class="hidden space-y-4">
-            <!-- Nút quay lại và tiêu đề hoạt động -->
             <div class="flex items-center justify-between bg-white p-3 rounded-2xl shadow-sm border border-slate-200">
                 <button onclick="goBackToActivities()" class="text-xs font-bold text-youthBlue flex items-center bg-blue-50 px-3 py-2 rounded-xl">
                     <i class="fa-solid fa-arrow-left mr-1.5"></i> Danh sách hoạt động
@@ -98,7 +108,7 @@
                 <p id="detailActDate" class="text-[10px] text-cyan-100 mt-0.5">Thời gian diễn ra</p>
             </div>
 
-            <!-- Thống kê tổng quan thu chi của hoạt động -->
+            <!-- Thống kê tổng quan thu chi -->
             <div class="grid grid-cols-3 gap-2 bg-white p-3 rounded-2xl shadow-sm border border-slate-200 text-center">
                 <div class="bg-blue-50 p-2 rounded-xl">
                     <p class="text-[10px] text-youthBlue font-bold uppercase">Tổng Thu</p>
@@ -114,7 +124,7 @@
                 </div>
             </div>
 
-            <!-- Form Nhập Liệu Thu / Chi (Rực rỡ sắc màu thanh niên) -->
+            <!-- Form Nhập Liệu Thu / Chi -->
             <div class="bg-white rounded-2xl shadow-sm border-2 border-cyan-100 overflow-hidden">
                 <div class="flex border-b border-slate-100 bg-slate-50">
                     <button onclick="switchTab('thu')" id="tabThuBtn" class="flex-1 py-3 text-xs font-bold text-youthBlue border-b-2 border-youthBlue bg-white transition-all">
@@ -127,7 +137,7 @@
 
                 <!-- Form Thu -->
                 <div id="formThuContent" class="p-4 space-y-3">
-                    <input type="hidden" id="editThuIndex" value="-1">
+                    <input type="hidden" id="editThuKey" value="">
                     <div>
                         <label class="block text-[11px] font-bold text-slate-600 mb-1">Thời gian thu</label>
                         <input type="datetime-local" id="thuNgayGio" class="w-full text-xs p-2.5 rounded-xl border border-slate-300 bg-slate-50 focus:outline-none focus:border-youthBlue">
@@ -135,7 +145,6 @@
                     <div>
                         <label class="block text-[11px] font-bold text-slate-600 mb-1">Người thu</label>
                         <select id="thuNguoiSelect" onchange="handleUserChange('thu')" class="w-full text-xs p-2.5 rounded-xl border border-slate-300 bg-white focus:outline-none focus:border-youthBlue font-semibold text-slate-700">
-                            <!-- Dynamic populated -->
                         </select>
                         <input type="text" id="thuNguoiCustom" placeholder="Nhập tên & chức vụ mới..." class="w-full text-xs p-2.5 rounded-xl border border-slate-300 mt-2 hidden focus:outline-none focus:border-youthBlue">
                     </div>
@@ -154,7 +163,7 @@
 
                 <!-- Form Chi -->
                 <div id="formChiContent" class="p-4 space-y-3 hidden">
-                    <input type="hidden" id="editChiIndex" value="-1">
+                    <input type="hidden" id="editChiKey" value="">
                     <div>
                         <label class="block text-[11px] font-bold text-slate-600 mb-1">Thời gian chi</label>
                         <input type="datetime-local" id="chiNgayGio" class="w-full text-xs p-2.5 rounded-xl border border-slate-300 bg-slate-50 focus:outline-none focus:border-youthOrange">
@@ -162,7 +171,6 @@
                     <div>
                         <label class="block text-[11px] font-bold text-slate-600 mb-1">Người chi</label>
                         <select id="chiNguoiSelect" onchange="handleUserChange('chi')" class="w-full text-xs p-2.5 rounded-xl border border-slate-300 bg-white focus:outline-none focus:border-youthOrange font-semibold text-slate-700">
-                            <!-- Dynamic populated -->
                         </select>
                         <input type="text" id="chiNguoiCustom" placeholder="Nhập tên & chức vụ mới..." class="w-full text-xs p-2.5 rounded-xl border border-slate-300 mt-2 hidden focus:outline-none focus:border-youthOrange">
                     </div>
@@ -212,9 +220,27 @@
 
     </main>
 
-    <!-- FORM MẪU BÁO CÁO CHUẨN ĐỂ XUẤT PDF (ẨN TRÊN GIAO DIỆN CHÍNH) -->
+    <!-- MODAL CHỌN KHOẢNG NGÀY ĐỂ BÁO CÁO TỔNG HỢP TOÀN CHI ĐOÀN -->
+    <div id="globalReportModal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-3 hidden">
+        <div class="bg-white rounded-2xl max-w-sm w-full p-4 space-y-3 shadow-xl">
+            <h3 class="font-extrabold text-youthBlue text-xs uppercase border-b pb-2"><i class="fa-solid fa-calendar-alt mr-1"></i> Báo cáo tổng hợp theo khoảng ngày</h3>
+            <div>
+                <label class="block text-[11px] font-bold text-slate-600 mb-1">Từ ngày</label>
+                <input type="date" id="globalFromDate" class="w-full text-xs p-2.5 rounded-xl border border-slate-300">
+            </div>
+            <div>
+                <label class="block text-[11px] font-bold text-slate-600 mb-1">Đến ngày</label>
+                <input type="date" id="globalToDate" class="w-full text-xs p-2.5 rounded-xl border border-slate-300">
+            </div>
+            <div class="flex space-x-2 pt-2">
+                <button onclick="closeGlobalReportModal()" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs py-2.5 rounded-xl">Đóng</button>
+                <button onclick="exportGlobalPDF()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2.5 rounded-xl">Xem & Tải PDF</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FORM MẪU BÁO CÁO CHUẨN ĐỂ XUẤT PDF (CĂN CHỈNH TỪ TRÊN XUỐNG) -->
     <div id="pdfTemplate" class="hidden bg-white p-8 text-slate-900 text-xs font-sans" style="width: 210mm; min-height: 297mm; margin: 0 auto;">
-        <!-- Quốc hiệu & Tiêu đề cơ quan -->
         <div class="flex justify-between items-start mb-4">
             <div class="text-center w-5/12">
                 <p class="font-bold uppercase text-[10px]">ĐOÀN TNCS HỒ CHÍ MINH</p>
@@ -231,16 +257,21 @@
             <span id="pdfCurrentDate">Buôn Hai - Đắk, ngày ... tháng ... năm 2026</span>
         </div>
 
-        <!-- Tiêu đề báo cáo -->
         <div class="text-center mb-6">
-            <h2 class="font-black text-sm uppercase">BÁO CÁO THU CHI TÀI CHÍNH HOẠT ĐỘNG</h2>
-            <h3 id="pdfActTitle" class="font-bold text-xs uppercase text-youthOrange mt-1">Tên hoạt động...</h3>
+            <h2 id="pdfMainTitle" class="font-black text-sm uppercase">BÁO CÁO THU CHI TÀI CHÍNH</h2>
+            <h3 id="pdfSubTitle" class="font-bold text-xs uppercase text-youthOrange mt-1">Nội dung...</h3>
         </div>
 
-        <!-- Kính gửi -->
-        <div class="mb-4">
-            <p class="font-bold">Kính gửi: Ban Tự quản Buôn Hai - Đắk</p>
-            <p class="mt-1">Căn cứ kế hoạch phối hợp và tổ chức các hoạt động phong trào thanh thiếu nhi, Chi đoàn Buôn Hai - Đắk báo cáo chi tiết thu, chi tài chính công khai cụ thể như sau:</p>
+        <!-- Phần Kính gửi & Căn cứ (có thể gợi ý nhưng linh hoạt) -->
+        <div class="mb-4 space-y-1">
+            <div class="flex items-center space-x-1">
+                <span class="font-bold flex-shrink-0">Kính gửi:</span>
+                <input type="text" id="pdfKingGui" value="Ban Tự quản Buôn Hai - Đắk" class="w-full font-bold bg-transparent border-b border-dashed border-slate-400 focus:outline-none">
+            </div>
+            <div class="flex items-start space-x-1 pt-1">
+                <span class="font-bold flex-shrink-0">Căn cứ:</span>
+                <textarea id="pdfCanCu" rows="2" class="w-full bg-transparent border border-slate-300 rounded p-1 text-[10px] focus:outline-none">Căn cứ kế hoạch tổ chức các hoạt động phong trào thanh thiếu nhi và thực tế công tác tài chính của Chi đoàn Buôn Hai - Đắk.</textarea>
+            </div>
         </div>
 
         <!-- 1. Danh sách thu -->
@@ -315,16 +346,25 @@
         Đoàn xã Cư M'ta - Chi Đoàn Buôn Hai - Đắk &copy; 2026
     </footer>
 
-    <!-- SCRIPT XỬ LÝ ỨNG DỤNG -->
+    <!-- SCRIPT TÍCH HỢP FIREBASE & LOGIC -->
     <script>
-        // Khởi tạo dữ liệu localStorage
-        let activities = JSON.parse(localStorage.getItem('chiDoanActivities')) || [
-            { id: 1, name: "HOẠT ĐỘNG HÈ 2026: BÓNG ĐÁ NHI ĐỒNG", from: "2026-06-01", to: "2026-06-30", thu: [], chi: [] }
-        ];
-        let staffList = JSON.parse(localStorage.getItem('chiDoanStaffs')) || ["Trần Vũ Lực (BTCĐ)"];
+        // Cấu hình Firebase của bạn
+        const firebaseConfig = {
+            apiKey: "AIzaSyC6uQ227DeF5M1nvDjqGwI88Y0kjAAaQHk",
+            authDomain: "chidoan-ae7ef.firebaseapp.com",
+            projectId: "chidoan-ae7ef",
+            storageBucket: "chidoan-ae7ef.firebasestorage.app",
+            messagingSenderId: "472447312925",
+            appId: "1:472447312925:web:273ca979066a118c5552f4"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+
+        let activitiesData = {};
+        let staffList = ["Trần Vũ Lực (BTCĐ)"];
         let currentActId = null;
 
-        // Tự động gán ngày giờ hiện tại
         function getCurrentDateTimeLocal() {
             const now = new Date();
             now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
@@ -335,12 +375,34 @@
         document.getElementById('chiNgayGio').value = getCurrentDateTimeLocal();
         document.getElementById('actFrom').value = new Date().toISOString().slice(0, 10);
         document.getElementById('actTo').value = new Date().toISOString().slice(0, 10);
+        
+        document.getElementById('globalFromDate').value = new Date().toISOString().slice(0, 10);
+        document.getElementById('globalToDate').value = new Date().toISOString().slice(0, 10);
 
-        // --- QUẢN LÝ DANH SÁCH NHÂN SỰ ---
+        // Lắng nghe dữ liệu Firebase Realtime
+        db.ref('staffs').on('value', (snapshot) => {
+            if (snapshot.exists()) {
+                staffList = snapshot.val();
+            } else {
+                db.ref('staffs').set(staffList);
+            }
+            updateStaffDropdowns();
+        });
+
+        db.ref('activities').on('value', (snapshot) => {
+            activitiesData = snapshot.val() || {};
+            renderActivities();
+            if (currentActId && activitiesData[currentActId]) {
+                renderTransactions();
+            }
+        });
+
         function updateStaffDropdowns() {
             ['thuNguoiSelect', 'chiNguoiSelect'].forEach(id => {
                 const select = document.getElementById(id);
-                select.innerHTML = staffList.map(s => `<option value="${s}">${s}</option>`).join('') + `<option value="custom_new">+ Nhập tên & chức vụ khác...</option>`;
+                if(select) {
+                    select.innerHTML = staffList.map(s => `<option value="${s}">${s}</option>`).join('') + `<option value="custom_new">+ Nhập tên & chức vụ khác...</option>`;
+                }
             });
         }
 
@@ -368,69 +430,53 @@
                 const customVal = document.getElementById(inputId).value.trim();
                 if (customVal && !staffList.includes(customVal)) {
                     staffList.push(customVal);
-                    localStorage.setItem('chiDoanStaffs', JSON.stringify(staffList));
-                    updateStaffDropdowns();
+                    db.ref('staffs').set(staffList);
                 }
                 return customVal || "Trần Vũ Lực (BTCĐ)";
             }
             return val;
         }
 
-        // --- QUẢN LÝ HOẠT ĐỘNG ---
+        // Hoạt động
         function saveActivity() {
             const name = document.getElementById('actName').value.trim();
             const from = document.getElementById('actFrom').value;
             const to = document.getElementById('actTo').value;
-            const editId = parseInt(document.getElementById('editActId').value);
+            const editId = document.getElementById('editActId').value;
 
-            if (!name) {
-                alert('Vui lòng nhập tên hoạt động!');
-                return;
-            }
+            if (!name) { alert('Vui lòng nhập tên hoạt động!'); return; }
 
-            if (editId === -1) {
-                const newAct = {
-                    id: Date.now(),
-                    name,
-                    from,
-                    to,
-                    thu: [],
-                    chi: []
-                };
-                activities.push(newAct);
+            if (!editId) {
+                db.ref('activities').push({ name, from, to });
             } else {
-                const act = activities.find(a => a.id === editId);
-                if (act) {
-                    act.name = name;
-                    act.from = from;
-                    act.to = to;
-                }
-                document.getElementById('editActId').value = -1;
+                db.ref(`activities/${editId}`).update({ name, from, to });
+                document.getElementById('editActId').value = '';
                 document.getElementById('btnSaveAct').innerText = "Lưu Hoạt Động";
             }
-
-            localStorage.setItem('chiDoanActivities', JSON.stringify(activities));
             document.getElementById('actName').value = '';
-            renderActivities();
         }
 
         function renderActivities() {
             const container = document.getElementById('activityListContainer');
-            document.getElementById('actCount').innerText = `${activities.length} hoạt động`;
+            const keys = Object.keys(activitiesData);
+            document.getElementById('actCount').innerText = `${keys.length} hoạt động`;
 
-            if (activities.length === 0) {
+            if (keys.length === 0) {
                 container.innerHTML = `<p class="text-center text-slate-400 text-xs py-4">Chưa có hoạt động nào được tạo</p>`;
                 return;
             }
 
-            container.innerHTML = activities.map((act) => {
-                const totalThu = act.thu.reduce((s, i) => s + i.sotien, 0);
-                const totalChi = act.chi.reduce((s, i) => s + i.sotien, 0);
+            container.innerHTML = keys.map((key) => {
+                const act = activitiesData[key];
+                const thuObj = act.thu || {};
+                const chiObj = act.chi || {};
+                const totalThu = Object.values(thuObj).reduce((s, i) => s + i.sotien, 0);
+                const totalChi = Object.values(chiObj).reduce((s, i) => s + i.sotien, 0);
                 const balance = totalThu - totalChi;
 
                 return `
                     <div class="bg-gradient-to-r from-blue-50/60 to-orange-50/40 border border-slate-200 p-3 rounded-xl flex flex-col space-y-2 shadow-xs transition-all hover:border-youthOrange">
-                        <div class="flex justify-between items-start cursor-pointer" onclick="openActivityDetail(${act.id})">
+                        <div class="flex justify-between items-start cursor-pointer" onclick="openActivityDetail('${key}')">
                             <div>
                                 <h4 class="font-extrabold text-youthBlue text-xs uppercase">${act.name}</h4>
                                 <p class="text-[10px] text-slate-500 mt-0.5"><i class="fa-regular fa-calendar-days mr-1"></i> ${act.from} đến ${act.to}</p>
@@ -438,42 +484,38 @@
                             <span class="text-[10px] font-bold px-2 py-1 rounded-lg ${balance >= 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">${balance.toLocaleString()} đ</span>
                         </div>
                         <div class="flex justify-end space-x-2 pt-1 border-t border-slate-200/60">
-                            <button onclick="editActivity(${act.id})" class="text-[11px] text-blue-600 font-bold px-2 py-1 bg-blue-100/70 rounded-lg hover:bg-blue-200"><i class="fa-solid fa-pen mr-1"></i> Sửa</button>
-                            <button onclick="deleteActivity(${act.id})" class="text-[11px] text-rose-600 font-bold px-2 py-1 bg-rose-100/70 rounded-lg hover:bg-rose-200"><i class="fa-solid fa-trash mr-1"></i> Xóa</button>
+                            <button onclick="editActivity('${key}')" class="text-[11px] text-blue-600 font-bold px-2 py-1 bg-blue-100/70 rounded-lg hover:bg-blue-200"><i class="fa-solid fa-pen mr-1"></i> Sửa</button>
+                            <button onclick="deleteActivity('${key}')" class="text-[11px] text-rose-600 font-bold px-2 py-1 bg-rose-100/70 rounded-lg hover:bg-rose-200"><i class="fa-solid fa-trash mr-1"></i> Xóa</button>
                         </div>
                     </div>
                 `;
             }).join('');
         }
 
-        function editActivity(id) {
-            const act = activities.find(a => a.id === id);
+        function editActivity(key) {
+            const act = activitiesData[key];
             if (!act) return;
             document.getElementById('actName').value = act.name;
             document.getElementById('actFrom').value = act.from;
             document.getElementById('actTo').value = act.to;
-            document.getElementById('editActId').value = act.id;
+            document.getElementById('editActId').value = key;
             document.getElementById('btnSaveAct').innerText = "Cập Nhật Hoạt Động";
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
-        function deleteActivity(id) {
-            if (confirm('Bạn có chắc chắn muốn xóa hoạt động này cùng toàn bộ dữ liệu thu chi bên trong?')) {
-                activities = activities.filter(a => a.id !== id);
-                localStorage.setItem('chiDoanActivities', JSON.stringify(activities));
-                renderActivities();
+        function deleteActivity(key) {
+            if (confirm('Xóa hoạt động này cùng toàn bộ thu chi bên trong?')) {
+                db.ref(`activities/${key}`).remove();
             }
         }
 
-        // --- CHUYỂN QUA MÀN HÌNH CHI TIẾT ---
-        function openActivityDetail(id) {
-            currentActId = id;
-            const act = activities.find(a => a.id === id);
+        function openActivityDetail(key) {
+            currentActId = key;
+            const act = activitiesData[key];
             if (!act) return;
 
             document.getElementById('screenActivities').classList.add('hidden');
             document.getElementById('screenDetail').classList.remove('hidden');
-            
             document.getElementById('detailActTitle').innerText = act.name;
             document.getElementById('detailActDate').innerText = `Thời gian: Từ ${act.from} đến ${act.to}`;
             
@@ -486,10 +528,8 @@
             currentActId = null;
             document.getElementById('screenDetail').classList.add('hidden');
             document.getElementById('screenActivities').classList.remove('hidden');
-            renderActivities();
         }
 
-        // --- QUẢN LÝ TAB THU / CHI ---
         function switchTab(type) {
             const tabThu = document.getElementById('tabThuBtn');
             const tabChi = document.getElementById('tabChiBtn');
@@ -509,45 +549,32 @@
             }
         }
 
-        function formatMoney(amount) {
-            return Number(amount).toLocaleString('vi-VN') + ' đ';
-        }
-
+        function formatMoney(amount) { return Number(amount).toLocaleString('vi-VN') + ' đ'; }
         function formatDateTime(dtStr) {
             if (!dtStr) return '';
             const d = new Date(dtStr);
             return d.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) + ' ' + d.toLocaleDateString('vi-VN');
         }
 
-        // --- GIAO DỊCH THU ---
+        // Thu Chi Giao dịch
         function saveThu() {
-            const act = activities.find(a => a.id === currentActId);
-            if (!act) return;
-
             const ngaygio = document.getElementById('thuNgayGio').value;
             const nguoi = getSelectedUser('thu');
             const sotien = parseFloat(document.getElementById('thuSoTien').value);
             const noidung = document.getElementById('thuNoiDung').value.trim();
-            const editIndex = parseInt(document.getElementById('editThuIndex').value);
+            const editKey = document.getElementById('editThuKey').value;
 
-            if (!ngaygio || !sotien || !noidung) {
-                alert('Vui lòng điền đầy đủ thông tin khoản thu!');
-                return;
-            }
-
+            if (!ngaygio || !sotien || !noidung) { alert('Điền đầy đủ thông tin thu!'); return; }
             const item = { ngaygio, nguoi, sotien, noidung };
 
-            if (editIndex === -1) {
-                act.thu.push(item);
+            if (!editKey) {
+                db.ref(`activities/${currentActId}/thu`).push(item);
             } else {
-                act.thu[editIndex] = item;
-                document.getElementById('editThuIndex').value = -1;
+                db.ref(`activities/${currentActId}/thu/${editKey}`).set(item);
+                document.getElementById('editThuKey').value = '';
                 document.getElementById('btnSaveThu').innerText = "Lưu Khoản Thu";
             }
-
-            localStorage.setItem('chiDoanActivities', JSON.stringify(activities));
             resetFormThu();
-            renderTransactions();
         }
 
         function resetFormThu() {
@@ -557,67 +584,39 @@
             document.getElementById('thuNguoiCustom').classList.add('hidden');
         }
 
-        function editThu(index) {
-            const act = activities.find(a => a.id === currentActId);
-            const item = act.thu[index];
+        function editThu(key) {
+            const item = activitiesData[currentActId].thu[key];
             document.getElementById('thuNgayGio').value = item.ngaygio;
             document.getElementById('thuSoTien').value = item.sotien;
             document.getElementById('thuNoiDung').value = item.noidung;
-            
-            // Set user dropdown or custom
             const select = document.getElementById('thuNguoiSelect');
-            if (staffList.includes(item.nguoi)) {
-                select.value = item.nguoi;
-                document.getElementById('thuNguoiCustom').classList.add('hidden');
-            } else {
-                select.value = 'custom_new';
-                document.getElementById('thuNguoiCustom').classList.remove('hidden');
-                document.getElementById('thuNguoiCustom').value = item.nguoi;
-            }
-
-            document.getElementById('editThuIndex').value = index;
+            if (staffList.includes(item.nguoi)) { select.value = item.nguoi; document.getElementById('thuNguoiCustom').classList.add('hidden'); }
+            else { select.value = 'custom_new'; document.getElementById('thuNguoiCustom').classList.remove('hidden'); document.getElementById('thuNguoiCustom').value = item.nguoi; }
+            document.getElementById('editThuKey').value = key;
             document.getElementById('btnSaveThu').innerText = "Cập Nhật Khoản Thu";
             switchTab('thu');
         }
 
-        function deleteThu(index) {
-            if (confirm('Xóa khoản thu này?')) {
-                const act = activities.find(a => a.id === currentActId);
-                act.thu.splice(index, 1);
-                localStorage.setItem('chiDoanActivities', JSON.stringify(activities));
-                renderTransactions();
-            }
-        }
+        function deleteThu(key) { if (confirm('Xóa khoản thu?')) db.ref(`activities/${currentActId}/thu/${key}`).remove(); }
 
-        // --- GIAO DỊCH CHI ---
         function saveChi() {
-            const act = activities.find(a => a.id === currentActId);
-            if (!act) return;
-
             const ngaygio = document.getElementById('chiNgayGio').value;
             const nguoi = getSelectedUser('chi');
             const sotien = parseFloat(document.getElementById('chiSoTien').value);
             const noidung = document.getElementById('chiNoiDung').value.trim();
-            const editIndex = parseInt(document.getElementById('editChiIndex').value);
+            const editKey = document.getElementById('editChiKey').value;
 
-            if (!ngaygio || !sotien || !noidung) {
-                alert('Vui lòng điền đầy đủ thông tin khoản chi!');
-                return;
-            }
-
+            if (!ngaygio || !sotien || !noidung) { alert('Điền đầy đủ thông tin chi!'); return; }
             const item = { ngaygio, nguoi, sotien, noidung };
 
-            if (editIndex === -1) {
-                act.chi.push(item);
+            if (!editKey) {
+                db.ref(`activities/${currentActId}/chi`).push(item);
             } else {
-                act.chi[editIndex] = item;
-                document.getElementById('editChiIndex').value = -1;
+                db.ref(`activities/${currentActId}/chi/${editKey}`).set(item);
+                document.getElementById('editChiKey').value = '';
                 document.getElementById('btnSaveChi').innerText = "Lưu Khoản Chi";
             }
-
-            localStorage.setItem('chiDoanActivities', JSON.stringify(activities));
             resetFormChi();
-            renderTransactions();
         }
 
         function resetFormChi() {
@@ -627,140 +626,142 @@
             document.getElementById('chiNguoiCustom').classList.add('hidden');
         }
 
-        function editChi(index) {
-            const act = activities.find(a => a.id === currentActId);
-            const item = act.chi[index];
+        function editChi(key) {
+            const item = activitiesData[currentActId].chi[key];
             document.getElementById('chiNgayGio').value = item.ngaygio;
             document.getElementById('chiSoTien').value = item.sotien;
             document.getElementById('chiNoiDung').value = item.noidung;
-
             const select = document.getElementById('chiNguoiSelect');
-            if (staffList.includes(item.nguoi)) {
-                select.value = item.nguoi;
-                document.getElementById('chiNguoiCustom').classList.add('hidden');
-            } else {
-                select.value = 'custom_new';
-                document.getElementById('chiNguoiCustom').classList.remove('hidden');
-                document.getElementById('chiNguoiCustom').value = item.nguoi;
-            }
-
-            document.getElementById('editChiIndex').value = index;
+            if (staffList.includes(item.nguoi)) { select.value = item.nguoi; document.getElementById('chiNguoiCustom').classList.add('hidden'); }
+            else { select.value = 'custom_new'; document.getElementById('chiNguoiCustom').classList.remove('hidden'); document.getElementById('chiNguoiCustom').value = item.nguoi; }
+            document.getElementById('editChiKey').value = key;
             document.getElementById('btnSaveChi').innerText = "Cập Nhật Khoản Chi";
             switchTab('chi');
         }
 
-        function deleteChi(index) {
-            if (confirm('Xóa khoản chi này?')) {
-                const act = activities.find(a => a.id === currentActId);
-                act.chi.splice(index, 1);
-                localStorage.setItem('chiDoanActivities', JSON.stringify(activities));
-                renderTransactions();
-            }
-        }
+        function deleteChi(key) { if (confirm('Xóa khoản chi?')) db.ref(`activities/${currentActId}/chi/${key}`).remove(); }
 
-        // --- RENDER GIAO DIỆN CHI TIẾT ---
         function renderTransactions() {
-            const act = activities.find(a => a.id === currentActId);
+            const act = activitiesData[currentActId];
             if (!act) return;
+            const thuObj = act.thu || {};
+            const chiObj = act.chi || {};
+            const thuKeys = Object.keys(thuObj);
+            const chiKeys = Object.keys(chiObj);
 
-            // Render Thu list
-            const containerThu = document.getElementById('listThuContainer');
-            document.getElementById('countThu').innerText = `${act.thu.length} mục`;
-            if (act.thu.length === 0) {
-                containerThu.innerHTML = `<p class="text-center text-slate-400 text-xs py-3">Chưa có dữ liệu thu</p>`;
-            } else {
-                containerThu.innerHTML = act.thu.map((item, index) => `
-                    <div class="bg-blue-50/50 border border-blue-100 p-2.5 rounded-xl flex justify-between items-center text-xs">
-                        <div class="space-y-0.5 pr-2">
-                            <p class="font-bold text-blue-900">${item.noidung}</p>
-                            <p class="text-[10px] text-slate-500"><i class="fa-regular fa-clock"></i> ${formatDateTime(item.ngaygio)} | Thu bởi: <span class="font-semibold text-slate-700">${item.nguoi}</span></p>
-                            <p class="font-extrabold text-youthBlue text-sm">+${formatMoney(item.sotien)}</p>
-                        </div>
-                        <div class="flex space-x-1 flex-shrink-0">
-                            <button onclick="editThu(${index})" class="bg-blue-200 hover:bg-blue-300 text-blue-800 p-1.5 rounded-lg"><i class="fa-solid fa-pen text-[10px]"></i></button>
-                            <button onclick="deleteThu(${index})" class="bg-rose-200 hover:bg-rose-300 text-rose-800 p-1.5 rounded-lg"><i class="fa-solid fa-trash text-[10px]"></i></button>
-                        </div>
+            document.getElementById('listThuContainer').innerHTML = thuKeys.length === 0 ? `<p class="text-center text-slate-400 text-xs py-3">Chưa có dữ liệu thu</p>` : thuKeys.map(key => `
+                <div class="bg-blue-50/50 border border-blue-100 p-2.5 rounded-xl flex justify-between items-center text-xs">
+                    <div class="space-y-0.5 pr-2">
+                        <p class="font-bold text-blue-900">${thuObj[key].noidung}</p>
+                        <p class="text-[10px] text-slate-500">${formatDateTime(thuObj[key].ngaygio)} | Thu: <span class="font-semibold text-slate-700">${thuObj[key].nguoi}</span></p>
+                        <p class="font-extrabold text-youthBlue text-sm">+${formatMoney(thuObj[key].sotien)}</p>
                     </div>
-                `).join('');
-            }
-
-            // Render Chi list
-            const containerChi = document.getElementById('listChiContainer');
-            document.getElementById('countChi').innerText = `${act.chi.length} mục`;
-            if (act.chi.length === 0) {
-                containerChi.innerHTML = `<p class="text-center text-slate-400 text-xs py-3">Chưa có dữ liệu chi</p>`;
-            } else {
-                containerChi.innerHTML = act.chi.map((item, index) => `
-                    <div class="bg-orange-50/50 border border-orange-100 p-2.5 rounded-xl flex justify-between items-center text-xs">
-                        <div class="space-y-0.5 pr-2">
-                            <p class="font-bold text-orange-900">${item.noidung}</p>
-                            <p class="text-[10px] text-slate-500"><i class="fa-regular fa-clock"></i> ${formatDateTime(item.ngaygio)} | Chi bởi: <span class="font-semibold text-slate-700">${item.nguoi}</span></p>
-                            <p class="font-extrabold text-youthOrange text-sm">-${formatMoney(item.sotien)}</p>
-                        </div>
-                        <div class="flex space-x-1 flex-shrink-0">
-                            <button onclick="editChi(${index})" class="bg-orange-200 hover:bg-orange-300 text-orange-800 p-1.5 rounded-lg"><i class="fa-solid fa-pen text-[10px]"></i></button>
-                            <button onclick="deleteChi(${index})" class="bg-rose-200 hover:bg-rose-300 text-rose-800 p-1.5 rounded-lg"><i class="fa-solid fa-trash text-[10px]"></i></button>
-                        </div>
+                    <div class="flex space-x-1 flex-shrink-0">
+                        <button onclick="editThu('${key}')" class="bg-blue-200 hover:bg-blue-300 text-blue-800 p-1.5 rounded-lg"><i class="fa-solid fa-pen text-[10px]"></i></button>
+                        <button onclick="deleteThu('${key}')" class="bg-rose-200 hover:bg-rose-300 text-rose-800 p-1.5 rounded-lg"><i class="fa-solid fa-trash text-[10px]"></i></button>
                     </div>
-                `).join('');
-            }
+                </div>
+            `).join('');
 
-            // Tổng kết thu chi
-            const totalThu = act.thu.reduce((sum, item) => sum + item.sotien, 0);
-            const totalChi = act.chi.reduce((sum, item) => sum + item.sotien, 0);
+            document.getElementById('listChiContainer').innerHTML = chiKeys.length === 0 ? `<p class="text-center text-slate-400 text-xs py-3">Chưa có dữ liệu chi</p>` : chiKeys.map(key => `
+                <div class="bg-orange-50/50 border border-orange-100 p-2.5 rounded-xl flex justify-between items-center text-xs">
+                    <div class="space-y-0.5 pr-2">
+                        <p class="font-bold text-orange-900">${chiObj[key].noidung}</p>
+                        <p class="text-[10px] text-slate-500">${formatDateTime(chiObj[key].ngaygio)} | Chi: <span class="font-semibold text-slate-700">${chiObj[key].nguoi}</span></p>
+                        <p class="font-extrabold text-youthOrange text-sm">-${formatMoney(chiObj[key].sotien)}</p>
+                    </div>
+                    <div class="flex space-x-1 flex-shrink-0">
+                        <button onclick="editChi('${key}')" class="bg-orange-200 hover:bg-orange-300 text-orange-800 p-1.5 rounded-lg"><i class="fa-solid fa-pen text-[10px]"></i></button>
+                        <button onclick="deleteChi('${key}')" class="bg-rose-200 hover:bg-rose-300 text-rose-800 p-1.5 rounded-lg"><i class="fa-solid fa-trash text-[10px]"></i></button>
+                    </div>
+                </div>
+            `).join('');
+
+            const totalThu = Object.values(thuObj).reduce((s, i) => s + i.sotien, 0);
+            const totalChi = Object.values(chiObj).reduce((s, i) => s + i.sotien, 0);
             const balance = totalThu - totalChi;
 
             document.getElementById('lblTotalThu').innerText = formatMoney(totalThu);
             document.getElementById('lblTotalChi').innerText = formatMoney(totalChi);
-            
             const lblBalance = document.getElementById('lblBalance');
             lblBalance.innerText = formatMoney(balance);
             lblBalance.className = balance < 0 ? "text-xs font-extrabold text-rose-600 mt-0.5" : "text-xs font-extrabold text-emerald-700 mt-0.5";
         }
 
-        // --- XUẤT BÁO CÁO PDF ---
+        // Báo cáo & Xuất PDF
         function exportPDF() {
-            const act = activities.find(a => a.id === currentActId);
+            const act = activitiesData[currentActId];
             if (!act) return;
+            const today = new Date();
+            document.getElementById('pdfCurrentDate').innerText = `Buôn Hai - Đắk, ngày ${today.getDate()} tháng ${today.getMonth() + 1} năm ${today.getFullYear()}`;
+            document.getElementById('pdfMainTitle').innerText = "BÁO CÁO THU CHI TÀI CHÍNH HOẠT ĐỘNG";
+            document.getElementById('pdfSubTitle').innerText = act.name;
+
+            const thuList = Object.values(act.thu || {});
+            const chiList = Object.values(act.chi || {});
+            buildPDFTablesAndSave(thuList, chiList, `BaoCao_${act.name.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
+        }
+
+        function openGlobalReportModal() { document.getElementById('globalReportModal').classList.remove('hidden'); }
+        function closeGlobalReportModal() { document.getElementById('globalReportModal').classList.add('hidden'); }
+
+        function exportGlobalPDF() {
+            const fromDate = document.getElementById('globalFromDate').value;
+            const toDate = document.getElementById('globalToDate').value;
+            if(!fromDate || !toDate) { alert('Vui lòng chọn đầy đủ từ ngày và đến ngày!'); return; }
+
+            let allThu = [];
+            let allChi = [];
+
+            Object.values(activitiesData).forEach(act => {
+                if(act.thu) {
+                    Object.values(act.thu).forEach(item => {
+                        const itemDate = item.ngaygio.slice(0, 10);
+                        if(itemDate >= fromDate && itemDate <= toDate) allThu.push(item);
+                    });
+                }
+                if(act.chi) {
+                    Object.values(act.chi).forEach(item => {
+                        const itemDate = item.ngaygio.slice(0, 10);
+                        if(itemDate >= fromDate && itemDate <= toDate) allChi.push(item);
+                    });
+                }
+            });
 
             const today = new Date();
             document.getElementById('pdfCurrentDate').innerText = `Buôn Hai - Đắk, ngày ${today.getDate()} tháng ${today.getMonth() + 1} năm ${today.getFullYear()}`;
-            document.getElementById('pdfActTitle').innerText = act.name;
+            document.getElementById('pdfMainTitle').innerText = "BÁO CÁO TỔNG HỢP THU CHI TOÀN CHI ĐOÀN";
+            document.getElementById('pdfSubTitle').innerText = `Từ ngày ${fromDate} đến ngày ${toDate}`;
+            
+            closeGlobalReportModal();
+            buildPDFTablesAndSave(allThu, allChi, `BaoCaoTongHop_${fromDate}_den_${toDate}.pdf`);
+        }
 
-            // Đổ bảng Thu PDF
+        function buildPDFTablesAndSave(thuList, chiList, filename) {
             const pdfTableThu = document.getElementById('pdfTableThu');
-            if (act.thu.length === 0) {
-                pdfTableThu.innerHTML = `<tr><td colspan="5" class="border border-slate-400 p-2 text-center italic">Không có dữ liệu thu</td></tr>`;
-            } else {
-                pdfTableThu.innerHTML = act.thu.map((item, idx) => `
-                    <tr>
-                        <td class="border border-slate-400 p-1 text-center">${idx + 1}</td>
-                        <td class="border border-slate-400 p-1">${formatDateTime(item.ngaygio)}</td>
-                        <td class="border border-slate-400 p-1">${item.noidung}</td>
-                        <td class="border border-slate-400 p-1">${item.nguoi}</td>
-                        <td class="border border-slate-400 p-1 text-right font-semibold">${formatMoney(item.sotien)}</td>
-                    </tr>
-                `).join('');
-            }
+            pdfTableThu.innerHTML = thuList.length === 0 ? `<tr><td colspan="5" class="border border-slate-400 p-2 text-center italic">Không có dữ liệu thu</td></tr>` : thuList.map((item, idx) => `
+                <tr>
+                    <td class="border border-slate-400 p-1 text-center">${idx + 1}</td>
+                    <td class="border border-slate-400 p-1">${formatDateTime(item.ngaygio)}</td>
+                    <td class="border border-slate-400 p-1">${item.noidung}</td>
+                    <td class="border border-slate-400 p-1">${item.nguoi}</td>
+                    <td class="border border-slate-400 p-1 text-right font-semibold">${formatMoney(item.sotien)}</td>
+                </tr>
+            `).join('');
 
-            // Đổ bảng Chi PDF
             const pdfTableChi = document.getElementById('pdfTableChi');
-            if (act.chi.length === 0) {
-                pdfTableChi.innerHTML = `<tr><td colspan="5" class="border border-slate-400 p-2 text-center italic">Không có dữ liệu chi</td></tr>`;
-            } else {
-                pdfTableChi.innerHTML = act.chi.map((item, idx) => `
-                    <tr>
-                        <td class="border border-slate-400 p-1 text-center">${idx + 1}</td>
-                        <td class="border border-slate-400 p-1">${formatDateTime(item.ngaygio)}</td>
-                        <td class="border border-slate-400 p-1">${item.noidung}</td>
-                        <td class="border border-slate-400 p-1">${item.nguoi}</td>
-                        <td class="border border-slate-400 p-1 text-right font-semibold">${formatMoney(item.sotien)}</td>
-                    </tr>
-                `).join('');
-            }
+            pdfTableChi.innerHTML = chiList.length === 0 ? `<tr><td colspan="5" class="border border-slate-400 p-2 text-center italic">Không có dữ liệu chi</td></tr>` : chiList.map((item, idx) => `
+                <tr>
+                    <td class="border border-slate-400 p-1 text-center">${idx + 1}</td>
+                    <td class="border border-slate-400 p-1">${formatDateTime(item.ngaygio)}</td>
+                    <td class="border border-slate-400 p-1">${item.noidung}</td>
+                    <td class="border border-slate-400 p-1">${item.nguoi}</td>
+                    <td class="border border-slate-400 p-1 text-right font-semibold">${formatMoney(item.sotien)}</td>
+                </tr>
+            `).join('');
 
-            const totalThu = act.thu.reduce((sum, item) => sum + item.sotien, 0);
-            const totalChi = act.chi.reduce((sum, item) => sum + item.sotien, 0);
+            const totalThu = thuList.reduce((s, i) => s + i.sotien, 0);
+            const totalChi = chiList.reduce((s, i) => s + i.sotien, 0);
             const balance = totalThu - totalChi;
 
             document.getElementById('pdfSumThu').innerText = formatMoney(totalThu);
@@ -771,8 +772,8 @@
             element.classList.remove('hidden');
 
             const opt = {
-                margin:       5,
-                filename:     `BaoCaoThuChi_${act.name.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`,
+                margin:       [5, 5, 5, 5],
+                filename:     filename,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
@@ -782,9 +783,6 @@
                 element.classList.add('hidden');
             });
         }
-
-        // Khởi chạy ứng dụng
-        renderActivities();
     </script>
 </body>
 </html>

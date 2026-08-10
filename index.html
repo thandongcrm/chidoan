@@ -383,7 +383,6 @@
 
     <!-- SCRIPT XỬ LÝ ĐĂNG NHẬP VÀ DỮ LIỆU -->
     <script>
-        // Kiểm tra trạng thái đăng nhập khi tải trang
         window.addEventListener('DOMContentLoaded', () => {
             const isLogged = localStorage.getItem('chiDoanLogged');
             if (isLogged === 'true') {
@@ -418,7 +417,6 @@
             initFirebaseApp();
         }
 
-        // Cấu hình Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyC6uQ227DeF5M1nvDjqGwI88Y0kjAAaQHk",
             authDomain: "chidoan-ae7ef.firebaseapp.com",
@@ -510,22 +508,43 @@
             return val;
         }
 
+        // HÀM LƯU HOẠT ĐỘNG CHUẨN XÁC VỚI FIREBASE
         function saveActivity() {
             const name = document.getElementById('actName').value.trim();
             const from = document.getElementById('actFrom').value;
             const to = document.getElementById('actTo').value;
             const editId = document.getElementById('editActId').value;
 
-            if (!name) { alert('Vui lòng nhập tên hoạt động!'); return; }
+            if (!name) { 
+                alert('Vui lòng nhập tên hoạt động!'); 
+                return; 
+            }
 
             if (!editId) {
-                db.ref('activities').push({ name, from, to });
+                // Tạo mới hoạt động đẩy lên Firebase
+                db.ref('activities').push({
+                    name: name,
+                    from: from,
+                    to: to
+                }).then(() => {
+                    document.getElementById('actName').value = '';
+                }).catch((error) => {
+                    alert('Lỗi lưu hoạt động: ' + error.message);
+                });
             } else {
-                db.ref(`activities/${editId}`).update({ name, from, to });
-                document.getElementById('editActId').value = '';
-                document.getElementById('btnSaveAct').innerText = "Lưu Hoạt Động";
+                // Cập nhật hoạt động
+                db.ref(`activities/${editId}`).update({
+                    name: name,
+                    from: from,
+                    to: to
+                }).then(() => {
+                    document.getElementById('editActId').value = '';
+                    document.getElementById('btnSaveAct').innerText = "Lưu Hoạt Động";
+                    document.getElementById('actName').value = '';
+                }).catch((error) => {
+                    alert('Lỗi cập nhật: ' + error.message);
+                });
             }
-            document.getElementById('actName').value = '';
         }
 
         function renderActivities() {

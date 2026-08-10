@@ -36,10 +36,11 @@
         }
         .readonly-hidden { display: none !important; }
         
-        /* Cấu hình khung PDF chuẩn tuyệt đối khổ A4 (210mm) */
+        /* Cấu hình khung PDF chuẩn tuyệt đối trên A4 */
         #pdfTemplate {
-            width: 210mm;
-            padding: 10mm 15mm;
+            width: 180mm;
+            margin: 0 auto;
+            padding: 0;
             background: white;
             color: #0f172a;
             font-family: sans-serif;
@@ -1043,10 +1044,10 @@
             element.classList.remove('hidden');
 
             const opt = {
-                margin:       [10, 10, 10, 10],
+                margin:       [10, 15, 10, 15],
                 filename:     filename,
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, letterRendering: true, windowWidth: 800 },
+                html2canvas:  { scale: 2, useCORS: true, letterRendering: true, windowWidth: 794 },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 

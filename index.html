@@ -420,6 +420,7 @@
         const firebaseConfig = {
             apiKey: "AIzaSyC6uQ227DeF5M1nvDjqGwI88Y0kjAAaQHk",
             authDomain: "chidoan-ae7ef.firebaseapp.com",
+            databaseURL: "https://chidoan-ae7ef-default-rtdb.asia-southeast1.firebasedatabase.app/",
             projectId: "chidoan-ae7ef",
             storageBucket: "chidoan-ae7ef.firebasestorage.app",
             messagingSenderId: "472447312925",
@@ -508,7 +509,6 @@
             return val;
         }
 
-        // HÀM LƯU HOẠT ĐỘNG CHUẨN XÁC VỚI FIREBASE
         function saveActivity() {
             const name = document.getElementById('actName').value.trim();
             const from = document.getElementById('actFrom').value;
@@ -521,7 +521,6 @@
             }
 
             if (!editId) {
-                // Tạo mới hoạt động đẩy lên Firebase
                 db.ref('activities').push({
                     name: name,
                     from: from,
@@ -532,7 +531,6 @@
                     alert('Lỗi lưu hoạt động: ' + error.message);
                 });
             } else {
-                // Cập nhật hoạt động
                 db.ref(`activities/${editId}`).update({
                     name: name,
                     from: from,

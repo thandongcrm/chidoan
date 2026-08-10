@@ -284,13 +284,13 @@
         </div>
     </div>
 
-    <!-- FORM MẪU BÁO CÁO CHUẨN ĐỂ XUẤT PDF -->
-    <div id="pdfTemplate" class="hidden bg-white p-8 text-slate-900 text-xs font-sans" style="width: 210mm; min-height: 297mm; margin: 0 auto;">
-        <div class="flex justify-between items-start mb-4">
+    <!-- FORM MẪU BÁO CÁO CHUẨN ĐỂ XUẤT PDF (CĂN CHỈNH GỌN GÀNG 1 TRANG A4) -->
+    <div id="pdfTemplate" class="hidden bg-white p-6 text-slate-900 text-[11px] font-sans" style="width: 210mm; min-height: 297mm; margin: 0 auto;">
+        <div class="flex justify-between items-start mb-3">
             <div class="text-center w-5/12">
                 <p class="font-bold uppercase text-[10px]">ĐOÀN TNCS HỒ CHÍ MINH</p>
                 <p class="font-bold text-[10px]">ĐOÀN XÃ CƯ M'TA</p>
-                <p class="font-bold text-[10px] underline uppercase mt-1">CHI ĐOÀN BUÔN HAI - ĐẮK</p>
+                <p class="font-bold text-[10px] underline uppercase mt-0.5">CHI ĐOÀN BUÔN HAI - ĐẮK</p>
             </div>
             <div class="text-center w-7/12">
                 <p class="font-bold uppercase text-[10px]">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</p>
@@ -298,90 +298,95 @@
             </div>
         </div>
 
-        <div class="text-right italic text-[10px] mb-4">
+        <div class="text-right italic text-[10px] mb-3">
             <span id="pdfCurrentDate">Buôn Hai - Đắk, ngày ... tháng ... năm 2026</span>
         </div>
 
-        <div class="text-center mb-6">
-            <h2 id="pdfMainTitle" class="font-black text-sm uppercase">BÁO CÁO THU CHI TÀI CHÍNH</h2>
-            <h3 id="pdfSubTitle" class="font-bold text-xs uppercase text-youthOrange mt-1">Nội dung...</h3>
+        <div class="text-center mb-4">
+            <h2 id="pdfMainTitle" class="font-black text-xs uppercase">BÁO CÁO THU CHI TÀI CHÍNH</h2>
+            <h3 id="pdfSubTitle" class="font-bold text-[11px] uppercase text-youthOrange mt-0.5">Nội dung...</h3>
         </div>
 
-        <div class="mb-4 space-y-1">
+        <div class="mb-3 space-y-1">
             <div class="flex items-center space-x-1">
                 <span class="font-bold flex-shrink-0">Kính gửi:</span>
                 <input type="text" id="pdfKingGui" value="Ban Tự quản Buôn Hai - Đắk" class="w-full font-bold bg-transparent border-b border-dashed border-slate-400 focus:outline-none">
             </div>
-            <div class="flex items-start space-x-1 pt-1">
+            <div class="flex items-start space-x-1 pt-0.5">
                 <span class="font-bold flex-shrink-0">Căn cứ:</span>
                 <textarea id="pdfCanCu" rows="2" class="w-full bg-transparent border border-slate-300 rounded p-1 text-[10px] focus:outline-none">Căn cứ kế hoạch tổ chức các hoạt động phong trào thanh thiếu nhi và thực tế công tác tài chính của Chi đoàn Buôn Hai - Đắk.</textarea>
             </div>
         </div>
 
-        <div class="mb-4">
-            <p class="font-bold uppercase text-[11px] mb-1 text-youthBlue">I. PHẦN THU KINH PHÍ</p>
+        <div class="mb-3">
+            <p class="font-bold uppercase text-[10px] mb-1 text-youthBlue">I. PHẦN THU KINH PHÍ</p>
             <table class="w-full border-collapse border border-slate-400 text-[10px]">
                 <thead>
                     <tr class="bg-slate-200">
-                        <th class="border border-slate-400 p-1.5 w-8 text-center">STT</th>
-                        <th class="border border-slate-400 p-1.5">Thời gian</th>
-                        <th class="border border-slate-400 p-1.5">Nội dung thu</th>
-                        <th class="border border-slate-400 p-1.5">Người thu</th>
-                        <th class="border border-slate-400 p-1.5 text-right">Số tiền (VNĐ)</th>
+                        <th class="border border-slate-400 p-1 w-8 text-center">STT</th>
+                        <th class="border border-slate-400 p-1">Thời gian</th>
+                        <th class="border border-slate-400 p-1">Nội dung thu</th>
+                        <th class="border border-slate-400 p-1">Người thu</th>
+                        <th class="border border-slate-400 p-1 text-right">Số tiền (VNĐ)</th>
                     </tr>
                 </thead>
                 <tbody id="pdfTableThu"></tbody>
             </table>
         </div>
 
-        <div class="mb-4">
-            <p class="font-bold uppercase text-[11px] mb-1 text-youthOrange">II. PHẦN CHI KINH PHÍ</p>
+        <div class="mb-3">
+            <p class="font-bold uppercase text-[10px] mb-1 text-youthOrange">II. PHẦN CHI KINH PHÍ</p>
             <table class="w-full border-collapse border border-slate-400 text-[10px]">
                 <thead>
                     <tr class="bg-slate-200">
-                        <th class="border border-slate-400 p-1.5 w-8 text-center">STT</th>
-                        <th class="border border-slate-400 p-1.5">Thời gian</th>
-                        <th class="border border-slate-400 p-1.5">Nội dung chi</th>
-                        <th class="border border-slate-400 p-1.5">Người chi</th>
-                        <th class="border border-slate-400 p-1.5 text-right">Số tiền (VNĐ)</th>
+                        <th class="border border-slate-400 p-1 w-8 text-center">STT</th>
+                        <th class="border border-slate-400 p-1">Thời gian</th>
+                        <th class="border border-slate-400 p-1">Nội dung chi</th>
+                        <th class="border border-slate-400 p-1">Người chi</th>
+                        <th class="border border-slate-400 p-1 text-right">Số tiền (VNĐ)</th>
                     </tr>
                 </thead>
                 <tbody id="pdfTableChi"></tbody>
             </table>
         </div>
 
-        <div class="mb-6 bg-slate-50 border border-slate-300 p-3 rounded">
-            <p class="font-bold uppercase text-[11px] mb-1">III. TỔNG KẾT CÂN ĐỐI QUỸ</p>
-            <div class="flex justify-between py-1 border-b border-slate-200">
+        <div class="mb-4 bg-slate-50 border border-slate-300 p-2.5 rounded">
+            <p class="font-bold uppercase text-[10px] mb-1">III. TỔNG KẾT CÂN ĐỐI QUỸ</p>
+            <div class="flex justify-between py-0.5 border-b border-slate-200 text-[10px]">
                 <span>- Tổng thu:</span>
                 <span id="pdfSumThu" class="font-bold text-youthBlue">0 đ</span>
             </div>
-            <div class="flex justify-between py-1 border-b border-slate-200">
+            <div class="flex justify-between py-0.5 border-b border-slate-200 text-[10px]">
                 <span>- Tổng chi:</span>
                 <span id="pdfSumChi" class="font-bold text-youthOrange">0 đ</span>
             </div>
-            <div class="flex justify-between py-1 text-emerald-700 font-bold text-xs">
+            <div class="flex justify-between py-0.5 text-emerald-700 font-bold text-[11px]">
                 <span>- Số dư tồn quỹ (Thu - Chi):</span>
                 <span id="pdfSumBalance">0 đ</span>
             </div>
         </div>
 
-        <div class="flex justify-between mt-8">
+        <div class="flex justify-between mt-6">
             <div class="text-center w-5/12">
                 <p class="font-bold uppercase text-[10px]">BAN TỰ QUẢN BUÔN HAI - ĐẮK</p>
                 <p class="italic text-[9px]">(Ký, ghi rõ họ tên)</p>
-                <div class="h-20"></div>
+                <div class="h-16"></div>
             </div>
             <div class="text-center w-5/12">
                 <p class="font-bold uppercase text-[10px]">BÍ THƯ CHI ĐOÀN</p>
                 <p class="italic text-[9px]">(Ký, ghi rõ họ tên)</p>
-                <div class="h-16"></div>
+                <div class="h-12"></div>
                 <p class="font-bold uppercase text-xs">Trần Vũ Lực</p>
             </div>
         </div>
     </div>
 
-    <!-- SCRIPT XỬ LÝ ĐĂNG NHẬP VÀ DỮ LIỆU -->
+    <!-- FOOTER -->
+    <footer class="text-center py-3 text-[10px] text-slate-400 no-print">
+        Đoàn xã Cư M'ta - Chi Đoàn Buôn Hai - Đắk &copy; 2026
+    </footer>
+
+    <!-- SCRIPT XỬ LÝ -->
     <script>
         window.addEventListener('DOMContentLoaded', () => {
             const isLogged = localStorage.getItem('chiDoanLogged');
@@ -515,32 +520,17 @@
             const to = document.getElementById('actTo').value;
             const editId = document.getElementById('editActId').value;
 
-            if (!name) { 
-                alert('Vui lòng nhập tên hoạt động!'); 
-                return; 
-            }
+            if (!name) { alert('Vui lòng nhập tên hoạt động!'); return; }
 
             if (!editId) {
-                db.ref('activities').push({
-                    name: name,
-                    from: from,
-                    to: to
-                }).then(() => {
+                db.ref('activities').push({ name, from, to }).then(() => {
                     document.getElementById('actName').value = '';
-                }).catch((error) => {
-                    alert('Lỗi lưu hoạt động: ' + error.message);
                 });
             } else {
-                db.ref(`activities/${editId}`).update({
-                    name: name,
-                    from: from,
-                    to: to
-                }).then(() => {
+                db.ref(`activities/${editId}`).update({ name, from, to }).then(() => {
                     document.getElementById('editActId').value = '';
                     document.getElementById('btnSaveAct').innerText = "Lưu Hoạt Động";
                     document.getElementById('actName').value = '';
-                }).catch((error) => {
-                    alert('Lỗi cập nhật: ' + error.message);
                 });
             }
         }
@@ -557,10 +547,8 @@
 
             container.innerHTML = keys.map((key) => {
                 const act = activitiesData[key];
-                const thuObj = act.thu || {};
-                const chiObj = act.chi || {};
-                const totalThu = Object.values(thuObj).reduce((s, i) => s + i.sotien, 0);
-                const totalChi = Object.values(chiObj).reduce((s, i) => s + i.sotien, 0);
+                const totalThu = Object.values(act.thu || {}).reduce((s, i) => s + i.sotien, 0);
+                const totalChi = Object.values(act.chi || {}).reduce((s, i) => s + i.sotien, 0);
                 const balance = totalThu - totalChi;
 
                 return `
@@ -859,11 +847,12 @@
             element.classList.remove('hidden');
 
             const opt = {
-                margin:       [5, 5, 5, 5],
+                margin:       [4, 4, 4, 4],
                 filename:     filename,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
             };
 
             html2pdf().from(element).set(opt).save().then(() => {

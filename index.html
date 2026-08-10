@@ -35,192 +35,237 @@
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen flex flex-col justify-between">
 
-    <!-- HEADER -->
-    <header class="bg-gradient-to-r from-youthBlue via-cyan-600 to-youthOrange text-white shadow-md p-4 sticky top-0 z-50">
-        <div class="max-w-md mx-auto text-center">
-            <p class="text-[10px] uppercase tracking-wider text-orange-200 font-extrabold">ĐOÀN XÃ CƯ M'TA</p>
-            <h1 class="text-sm uppercase font-black tracking-wide mt-0.5">CHI ĐOÀN BUÔN HAI - ĐẮK</h1>
-        </div>
-    </header>
-
-    <!-- MAIN CONTENT -->
-    <main class="max-w-md w-full mx-auto p-3 space-y-4 mb-16 flex-grow">
-
-        <!-- MÀN HÌNH 1: DANH SÁCH HOẠT ĐỘNG & NÚT BÁO CÁO TỔNG HỢP -->
-        <div id="screenActivities" class="space-y-4">
-            <!-- Nút mở modal Báo cáo toàn chi đoàn theo ngày -->
-            <button onclick="openGlobalReportModal()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs py-3.5 rounded-2xl shadow-md flex items-center justify-center space-x-2 transition-all">
-                <i class="fa-solid fa-file-invoice-dollar text-sm"></i>
-                <span>BÁO CÁO TỔNG HỢP TOÀN CHI ĐOÀN (THEO KHOẢNG NGÀY)</span>
-            </button>
-
-            <!-- Thẻ tạo hoạt động mới -->
-            <div class="bg-white rounded-2xl shadow-md border-2 border-orange-200 p-4 relative overflow-hidden">
-                <div class="absolute top-0 right-0 bg-youthOrange text-white text-[9px] font-bold px-3 py-1 rounded-bl-xl uppercase">Firebase Realtime</div>
-                <h3 class="text-xs font-black text-youthOrange uppercase mb-3 flex items-center">
-                    <i class="fa-solid fa-folder-plus mr-1.5 text-sm"></i> Tạo Hoạt Động Thu / Chi Mới
-                </h3>
-                <input type="hidden" id="editActId" value="">
-                <div class="space-y-2.5">
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Tên hoạt động</label>
-                        <input type="text" id="actName" placeholder="VD: Hè 2026: Bóng đá nhi đồng..." class="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-youthOrange">
-                    </div>
-                    <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Từ ngày</label>
-                            <input type="date" id="actFrom" class="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-youthOrange">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Đến ngày</label>
-                            <input type="date" id="actTo" class="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-youthOrange">
-                        </div>
-                    </div>
-                    <button onclick="saveActivity()" id="btnSaveAct" class="w-full bg-gradient-to-r from-youthOrange to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold text-xs py-3 rounded-xl shadow transition-all">
-                        Lưu Hoạt Động
-                    </button>
-                </div>
+    <!-- ================= MÀN HÌNH ĐĂNG NHẬP ================= -->
+    <div id="screenLogin" class="fixed inset-0 bg-slate-900 z-50 flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-sm w-full p-6 shadow-2xl space-y-5 border-t-4 border-youthOrange">
+            <div class="text-center space-y-1">
+                <span class="bg-blue-100 text-youthBlue text-[10px] font-bold px-3 py-1 rounded-full uppercase">Đoàn xã Cư M'ta</span>
+                <h2 class="text-base font-black text-slate-800 uppercase mt-2">CHI ĐOÀN BUÔN HAI - ĐẮK</h2>
+                <p class="text-xs text-slate-500">Đăng nhập hệ thống quản lý quỹ</p>
             </div>
-
-            <!-- Danh sách các hoạt động đã thực hiện -->
-            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-3">
-                <h3 class="text-xs font-bold text-youthBlue uppercase mb-2 border-b pb-1.5 flex justify-between items-center">
-                    <span><i class="fa-solid fa-list-check mr-1"></i> Danh Sách Hoạt Động</span>
-                    <span id="actCount" class="text-[10px] bg-blue-100 text-youthBlue px-2 py-0.5 rounded-full">0 hoạt động</span>
-                </h3>
-                <div id="activityListContainer" class="space-y-2 max-h-80 overflow-y-auto pr-1">
-                    <p class="text-center text-slate-400 text-xs py-4">Đang tải dữ liệu từ cơ sở dữ liệu...</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- MÀN HÌNH 2: CHI TIẾT THU / CHI CỦA HOẠT ĐỘNG -->
-        <div id="screenDetail" class="hidden space-y-4">
-            <div class="flex items-center justify-between bg-white p-3 rounded-2xl shadow-sm border border-slate-200">
-                <button onclick="goBackToActivities()" class="text-xs font-bold text-youthBlue flex items-center bg-blue-50 px-3 py-2 rounded-xl">
-                    <i class="fa-solid fa-arrow-left mr-1.5"></i> Danh sách hoạt động
-                </button>
-                <span id="currentActBadge" class="text-[10px] font-bold bg-orange-100 text-youthOrange px-2.5 py-1 rounded-full uppercase">Đang chọn</span>
-            </div>
-
-            <div id="activeTitleBox" class="bg-gradient-to-r from-youthBlue to-cyan-700 text-white p-3.5 rounded-2xl shadow-sm text-center">
-                <h2 id="detailActTitle" class="text-sm font-extrabold uppercase">TÊN HOẠT ĐỘNG</h2>
-                <p id="detailActDate" class="text-[10px] text-cyan-100 mt-0.5">Thời gian diễn ra</p>
-            </div>
-
-            <!-- Thống kê tổng quan thu chi -->
-            <div class="grid grid-cols-3 gap-2 bg-white p-3 rounded-2xl shadow-sm border border-slate-200 text-center">
-                <div class="bg-blue-50 p-2 rounded-xl">
-                    <p class="text-[10px] text-youthBlue font-bold uppercase">Tổng Thu</p>
-                    <p id="lblTotalThu" class="text-xs font-extrabold text-blue-700 mt-0.5">0 đ</p>
-                </div>
-                <div class="bg-orange-50 p-2 rounded-xl">
-                    <p class="text-[10px] text-youthOrange font-bold uppercase">Tổng Chi</p>
-                    <p id="lblTotalChi" class="text-xs font-extrabold text-orange-600 mt-0.5">0 đ</p>
-                </div>
-                <div class="bg-emerald-50 p-2 rounded-xl">
-                    <p class="text-[10px] text-emerald-600 font-bold uppercase">Cân Đối</p>
-                    <p id="lblBalance" class="text-xs font-extrabold text-emerald-700 mt-0.5">0 đ</p>
-                </div>
-            </div>
-
-            <!-- Form Nhập Liệu Thu / Chi -->
-            <div class="bg-white rounded-2xl shadow-sm border-2 border-cyan-100 overflow-hidden">
-                <div class="flex border-b border-slate-100 bg-slate-50">
-                    <button onclick="switchTab('thu')" id="tabThuBtn" class="flex-1 py-3 text-xs font-bold text-youthBlue border-b-2 border-youthBlue bg-white transition-all">
-                        <i class="fa-solid fa-circle-plus mr-1"></i> NHẬP THU
-                    </button>
-                    <button onclick="switchTab('chi')" id="tabChiBtn" class="flex-1 py-3 text-xs font-bold text-slate-400 transition-all">
-                        <i class="fa-solid fa-circle-minus mr-1"></i> NHẬP CHI
-                    </button>
-                </div>
-
-                <!-- Form Thu -->
-                <div id="formThuContent" class="p-4 space-y-3">
-                    <input type="hidden" id="editThuKey" value="">
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Thời gian thu</label>
-                        <input type="datetime-local" id="thuNgayGio" class="w-full text-xs p-2.5 rounded-xl border border-slate-300 bg-slate-50 focus:outline-none focus:border-youthBlue">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Người thu</label>
-                        <select id="thuNguoiSelect" onchange="handleUserChange('thu')" class="w-full text-xs p-2.5 rounded-xl border border-slate-300 bg-white focus:outline-none focus:border-youthBlue font-semibold text-slate-700">
-                        </select>
-                        <input type="text" id="thuNguoiCustom" placeholder="Nhập tên & chức vụ mới..." class="w-full text-xs p-2.5 rounded-xl border border-slate-300 mt-2 hidden focus:outline-none focus:border-youthBlue">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Số tiền (VNĐ)</label>
-                        <input type="number" id="thuSoTien" placeholder="Nhập số tiền..." class="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-youthBlue">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Nội dung thu</label>
-                        <input type="text" id="thuNoiDung" placeholder="VD: Đóng góp quỹ đội bóng..." class="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-youthBlue">
-                    </div>
-                    <button onclick="saveThu()" id="btnSaveThu" class="w-full bg-youthBlue hover:bg-sky-600 text-white font-bold text-xs py-3 rounded-xl shadow transition-all">
-                        Lưu Khoản Thu
-                    </button>
-                </div>
-
-                <!-- Form Chi -->
-                <div id="formChiContent" class="p-4 space-y-3 hidden">
-                    <input type="hidden" id="editChiKey" value="">
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Thời gian chi</label>
-                        <input type="datetime-local" id="chiNgayGio" class="w-full text-xs p-2.5 rounded-xl border border-slate-300 bg-slate-50 focus:outline-none focus:border-youthOrange">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Người chi</label>
-                        <select id="chiNguoiSelect" onchange="handleUserChange('chi')" class="w-full text-xs p-2.5 rounded-xl border border-slate-300 bg-white focus:outline-none focus:border-youthOrange font-semibold text-slate-700">
-                        </select>
-                        <input type="text" id="chiNguoiCustom" placeholder="Nhập tên & chức vụ mới..." class="w-full text-xs p-2.5 rounded-xl border border-slate-300 mt-2 hidden focus:outline-none focus:border-youthOrange">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Số tiền (VNĐ)</label>
-                        <input type="number" id="chiSoTien" placeholder="Nhập số tiền..." class="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-youthOrange">
-                    </div>
-                    <div>
-                        <label class="block text-[11px] font-bold text-slate-600 mb-1">Nội dung chi</label>
-                        <input type="text" id="chiNoiDung" placeholder="VD: Mua nước suối, bóng đá..." class="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-youthOrange">
-                    </div>
-                    <button onclick="saveChi()" id="btnSaveChi" class="w-full bg-youthOrange hover:bg-orange-600 text-white font-bold text-xs py-3 rounded-xl shadow transition-all">
-                        Lưu Khoản Chi
-                    </button>
-                </div>
-            </div>
-
-            <!-- Danh sách Thu & Chi chi tiết -->
+            
             <div class="space-y-3">
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-600 mb-1">Tên đăng nhập</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-user"></i></span>
+                        <input type="text" id="loginUser" placeholder="Nhập tên đăng nhập..." class="w-full text-xs pl-9 pr-3 py-3 rounded-xl border border-slate-300 focus:outline-none focus:border-youthBlue">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-600 mb-1">Mật khẩu</label>
+                    <div class="relative">
+                        <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400"><i class="fa-solid fa-lock"></i></span>
+                        <input type="password" id="loginPass" placeholder="Nhập mật khẩu..." class="w-full text-xs pl-9 pr-3 py-3 rounded-xl border border-slate-300 focus:outline-none focus:border-youthBlue">
+                    </div>
+                </div>
+                <button onclick="handleLogin()" class="w-full bg-gradient-to-r from-youthBlue to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white font-bold text-xs py-3.5 rounded-xl shadow-md transition-all uppercase tracking-wide">
+                    Đăng Nhập Ngay
+                </button>
+            </div>
+            <p class="text-[10px] text-center text-slate-400">Hệ thống thông tin nội bộ Chi Đoàn</p>
+        </div>
+    </div>
+
+    <!-- ================= ỨNG DỤNG CHÍNH ================= -->
+    <div id="mainAppContent" class="hidden flex-col min-h-screen justify-between">
+        <!-- HEADER -->
+        <header class="bg-gradient-to-r from-youthBlue via-cyan-600 to-youthOrange text-white shadow-md p-4 sticky top-0 z-40">
+            <div class="max-w-md mx-auto flex justify-between items-center">
+                <div class="text-left">
+                    <p class="text-[9px] uppercase tracking-wider text-orange-200 font-extrabold">ĐOÀN XÃ CƯ M'TA</p>
+                    <h1 class="text-xs uppercase font-black tracking-wide mt-0.5">CHI ĐOÀN BUÔN HAI - ĐẮK</h1>
+                </div>
+                <button onclick="handleLogout()" class="bg-white/20 hover:bg-white/30 text-white px-2.5 py-1.5 rounded-xl text-[10px] font-bold transition-all flex items-center space-x-1" title="Đăng xuất">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                    <span>Thoát</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- MAIN CONTENT -->
+        <main class="max-w-md w-full mx-auto p-3 space-y-4 mb-16 flex-grow">
+
+            <!-- MÀN HÌNH 1: DANH SÁCH HOẠT ĐỘNG & NÚT BÁO CÁO TỔNG HỢP -->
+            <div id="screenActivities" class="space-y-4">
+                <button onclick="openGlobalReportModal()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs py-3.5 rounded-2xl shadow-md flex items-center justify-center space-x-2 transition-all">
+                    <i class="fa-solid fa-file-invoice-dollar text-sm"></i>
+                    <span>BÁO CÁO TỔNG HỢP TOÀN CHI ĐOÀN (THEO KHOẢNG NGÀY)</span>
+                </button>
+
+                <!-- Thẻ tạo hoạt động mới -->
+                <div class="bg-white rounded-2xl shadow-md border-2 border-orange-200 p-4 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 bg-youthOrange text-white text-[9px] font-bold px-3 py-1 rounded-bl-xl uppercase">Firebase Realtime</div>
+                    <h3 class="text-xs font-black text-youthOrange uppercase mb-3 flex items-center">
+                        <i class="fa-solid fa-folder-plus mr-1.5 text-sm"></i> Tạo Hoạt Động Thu / Chi Mới
+                    </h3>
+                    <input type="hidden" id="editActId" value="">
+                    <div class="space-y-2.5">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Tên hoạt động</label>
+                            <input type="text" id="actName" placeholder="VD: Hè 2026: Bóng đá nhi đồng..." class="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-youthOrange">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-600 mb-1">Từ ngày</label>
+                                <input type="date" id="actFrom" class="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-youthOrange">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-bold text-slate-600 mb-1">Đến ngày</label>
+                                <input type="date" id="actTo" class="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-youthOrange">
+                            </div>
+                        </div>
+                        <button onclick="saveActivity()" id="btnSaveAct" class="w-full bg-gradient-to-r from-youthOrange to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold text-xs py-3 rounded-xl shadow transition-all">
+                            Lưu Hoạt Động
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Danh sách các hoạt động -->
                 <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-3">
                     <h3 class="text-xs font-bold text-youthBlue uppercase mb-2 border-b pb-1.5 flex justify-between items-center">
-                        <span><i class="fa-solid fa-list-ul mr-1"></i> Danh Sách Thu</span>
-                        <span id="countThu" class="text-[10px] bg-blue-100 text-youthBlue px-2 py-0.5 rounded-full">0 mục</span>
+                        <span><i class="fa-solid fa-list-check mr-1"></i> Danh Sách Hoạt Động</span>
+                        <span id="actCount" class="text-[10px] bg-blue-100 text-youthBlue px-2 py-0.5 rounded-full">0 hoạt động</span>
                     </h3>
-                    <div id="listThuContainer" class="space-y-2 max-h-48 overflow-y-auto pr-1">
-                        <p class="text-center text-slate-400 text-xs py-3">Chưa có dữ liệu thu</p>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-3">
-                    <h3 class="text-xs font-bold text-youthOrange uppercase mb-2 border-b pb-1.5 flex justify-between items-center">
-                        <span><i class="fa-solid fa-list-ul mr-1"></i> Danh Sách Chi</span>
-                        <span id="countChi" class="text-[10px] bg-orange-100 text-youthOrange px-2 py-0.5 rounded-full">0 mục</span>
-                    </h3>
-                    <div id="listChiContainer" class="space-y-2 max-h-48 overflow-y-auto pr-1">
-                        <p class="text-center text-slate-400 text-xs py-3">Chưa có dữ liệu chi</p>
+                    <div id="activityListContainer" class="space-y-2 max-h-80 overflow-y-auto pr-1">
+                        <p class="text-center text-slate-400 text-xs py-4">Đang tải dữ liệu từ cơ sở dữ liệu...</p>
                     </div>
                 </div>
             </div>
 
-            <!-- Nút Xuất Báo Cáo PDF Hoạt Động -->
-            <button onclick="exportPDF()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs py-3.5 rounded-2xl shadow-md flex items-center justify-center space-x-2 transition-all">
-                <i class="fa-solid fa-file-pdf text-sm"></i>
-                <span>TẢI BÁO CÁO THU CHI HOẠT ĐỘNG (PDF TRÌNH KÍ)</span>
-            </button>
-        </div>
+            <!-- MÀN HÌNH 2: CHI TIẾT THU / CHI CỦA HOẠT ĐỘNG -->
+            <div id="screenDetail" class="hidden space-y-4">
+                <div class="flex items-center justify-between bg-white p-3 rounded-2xl shadow-sm border border-slate-200">
+                    <button onclick="goBackToActivities()" class="text-xs font-bold text-youthBlue flex items-center bg-blue-50 px-3 py-2 rounded-xl">
+                        <i class="fa-solid fa-arrow-left mr-1.5"></i> Danh sách hoạt động
+                    </button>
+                    <span id="currentActBadge" class="text-[10px] font-bold bg-orange-100 text-youthOrange px-2.5 py-1 rounded-full uppercase">Đang chọn</span>
+                </div>
 
-    </main>
+                <div id="activeTitleBox" class="bg-gradient-to-r from-youthBlue to-cyan-700 text-white p-3.5 rounded-2xl shadow-sm text-center">
+                    <h2 id="detailActTitle" class="text-sm font-extrabold uppercase">TÊN HOẠT ĐỘNG</h2>
+                    <p id="detailActDate" class="text-[10px] text-cyan-100 mt-0.5">Thời gian diễn ra</p>
+                </div>
 
-    <!-- MODAL CHỌN KHOẢNG NGÀY ĐỂ BÁO CÁO TỔNG HỢP TOÀN CHI ĐOÀN -->
+                <!-- Thống kê tổng quan -->
+                <div class="grid grid-cols-3 gap-2 bg-white p-3 rounded-2xl shadow-sm border border-slate-200 text-center">
+                    <div class="bg-blue-50 p-2 rounded-xl">
+                        <p class="text-[10px] text-youthBlue font-bold uppercase">Tổng Thu</p>
+                        <p id="lblTotalThu" class="text-xs font-extrabold text-blue-700 mt-0.5">0 đ</p>
+                    </div>
+                    <div class="bg-orange-50 p-2 rounded-xl">
+                        <p class="text-[10px] text-youthOrange font-bold uppercase">Tổng Chi</p>
+                        <p id="lblTotalChi" class="text-xs font-extrabold text-orange-600 mt-0.5">0 đ</p>
+                    </div>
+                    <div class="bg-emerald-50 p-2 rounded-xl">
+                        <p class="text-[10px] text-emerald-600 font-bold uppercase">Cân Đối</p>
+                        <p id="lblBalance" class="text-xs font-extrabold text-emerald-700 mt-0.5">0 đ</p>
+                    </div>
+                </div>
+
+                <!-- Form Nhập Liệu Thu / Chi -->
+                <div class="bg-white rounded-2xl shadow-sm border-2 border-cyan-100 overflow-hidden">
+                    <div class="flex border-b border-slate-100 bg-slate-50">
+                        <button onclick="switchTab('thu')" id="tabThuBtn" class="flex-1 py-3 text-xs font-bold text-youthBlue border-b-2 border-youthBlue bg-white transition-all">
+                            <i class="fa-solid fa-circle-plus mr-1"></i> NHẬP THU
+                        </button>
+                        <button onclick="switchTab('chi')" id="tabChiBtn" class="flex-1 py-3 text-xs font-bold text-slate-400 transition-all">
+                            <i class="fa-solid fa-circle-minus mr-1"></i> NHẬP CHI
+                        </button>
+                    </div>
+
+                    <!-- Form Thu -->
+                    <div id="formThuContent" class="p-4 space-y-3">
+                        <input type="hidden" id="editThuKey" value="">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Thời gian thu</label>
+                            <input type="datetime-local" id="thuNgayGio" class="w-full text-xs p-2.5 rounded-xl border border-slate-300 bg-slate-50 focus:outline-none focus:border-youthBlue">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Người thu</label>
+                            <select id="thuNguoiSelect" onchange="handleUserChange('thu')" class="w-full text-xs p-2.5 rounded-xl border border-slate-300 bg-white focus:outline-none focus:border-youthBlue font-semibold text-slate-700">
+                            </select>
+                            <input type="text" id="thuNguoiCustom" placeholder="Nhập tên & chức vụ mới..." class="w-full text-xs p-2.5 rounded-xl border border-slate-300 mt-2 hidden focus:outline-none focus:border-youthBlue">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Số tiền (VNĐ)</label>
+                            <input type="number" id="thuSoTien" placeholder="Nhập số tiền..." class="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-youthBlue">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Nội dung thu</label>
+                            <input type="text" id="thuNoiDung" placeholder="VD: Đóng góp quỹ đội bóng..." class="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-youthBlue">
+                        </div>
+                        <button onclick="saveThu()" id="btnSaveThu" class="w-full bg-youthBlue hover:bg-sky-600 text-white font-bold text-xs py-3 rounded-xl shadow transition-all">
+                            Lưu Khoản Thu
+                        </button>
+                    </div>
+
+                    <!-- Form Chi -->
+                    <div id="formChiContent" class="p-4 space-y-3 hidden">
+                        <input type="hidden" id="editChiKey" value="">
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Thời gian chi</label>
+                            <input type="datetime-local" id="chiNgayGio" class="w-full text-xs p-2.5 rounded-xl border border-slate-300 bg-slate-50 focus:outline-none focus:border-youthOrange">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Người chi</label>
+                            <select id="chiNguoiSelect" onchange="handleUserChange('chi')" class="w-full text-xs p-2.5 rounded-xl border border-slate-300 bg-white focus:outline-none focus:border-youthOrange font-semibold text-slate-700">
+                            </select>
+                            <input type="text" id="chiNguoiCustom" placeholder="Nhập tên & chức vụ mới..." class="w-full text-xs p-2.5 rounded-xl border border-slate-300 mt-2 hidden focus:outline-none focus:border-youthOrange">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Số tiền (VNĐ)</label>
+                            <input type="number" id="chiSoTien" placeholder="Nhập số tiền..." class="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-youthOrange">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-bold text-slate-600 mb-1">Nội dung chi</label>
+                            <input type="text" id="chiNoiDung" placeholder="VD: Mua nước suối, bóng đá..." class="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-youthOrange">
+                        </div>
+                        <button onclick="saveChi()" id="btnSaveChi" class="w-full bg-youthOrange hover:bg-orange-600 text-white font-bold text-xs py-3 rounded-xl shadow transition-all">
+                            Lưu Khoản Chi
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Danh sách Thu & Chi chi tiết -->
+                <div class="space-y-3">
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-3">
+                        <h3 class="text-xs font-bold text-youthBlue uppercase mb-2 border-b pb-1.5 flex justify-between items-center">
+                            <span><i class="fa-solid fa-list-ul mr-1"></i> Danh Sách Thu</span>
+                            <span id="countThu" class="text-[10px] bg-blue-100 text-youthBlue px-2 py-0.5 rounded-full">0 mục</span>
+                        </h3>
+                        <div id="listThuContainer" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+                            <p class="text-center text-slate-400 text-xs py-3">Chưa có dữ liệu thu</p>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-3">
+                        <h3 class="text-xs font-bold text-youthOrange uppercase mb-2 border-b pb-1.5 flex justify-between items-center">
+                            <span><i class="fa-solid fa-list-ul mr-1"></i> Danh Sách Chi</span>
+                            <span id="countChi" class="text-[10px] bg-orange-100 text-youthOrange px-2 py-0.5 rounded-full">0 mục</span>
+                        </h3>
+                        <div id="listChiContainer" class="space-y-2 max-h-48 overflow-y-auto pr-1">
+                            <p class="text-center text-slate-400 text-xs py-3">Chưa có dữ liệu chi</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Nút Xuất Báo Cáo PDF Hoạt Động -->
+                <button onclick="exportPDF()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs py-3.5 rounded-2xl shadow-md flex items-center justify-center space-x-2 transition-all">
+                    <i class="fa-solid fa-file-pdf text-sm"></i>
+                    <span>TẢI BÁO CÁO THU CHI HOẠT ĐỘNG (PDF TRÌNH KÍ)</span>
+                </button>
+            </div>
+
+        </main>
+
+        <!-- FOOTER -->
+        <footer class="text-center py-3 text-[10px] text-slate-400 no-print">
+            Đoàn xã Cư M'ta - Chi Đoàn Buôn Hai - Đắk &copy; 2026
+        </footer>
+    </div>
+
+    <!-- MODAL BÁO CÁO TỔNG HỢP -->
     <div id="globalReportModal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-3 hidden">
         <div class="bg-white rounded-2xl max-w-sm w-full p-4 space-y-3 shadow-xl">
             <h3 class="font-extrabold text-youthBlue text-xs uppercase border-b pb-2"><i class="fa-solid fa-calendar-alt mr-1"></i> Báo cáo tổng hợp theo khoảng ngày</h3>
@@ -239,7 +284,7 @@
         </div>
     </div>
 
-    <!-- FORM MẪU BÁO CÁO CHUẨN ĐỂ XUẤT PDF (CĂN CHỈNH TỪ TRÊN XUỐNG) -->
+    <!-- FORM MẪU BÁO CÁO CHUẨN ĐỂ XUẤT PDF -->
     <div id="pdfTemplate" class="hidden bg-white p-8 text-slate-900 text-xs font-sans" style="width: 210mm; min-height: 297mm; margin: 0 auto;">
         <div class="flex justify-between items-start mb-4">
             <div class="text-center w-5/12">
@@ -262,7 +307,6 @@
             <h3 id="pdfSubTitle" class="font-bold text-xs uppercase text-youthOrange mt-1">Nội dung...</h3>
         </div>
 
-        <!-- Phần Kính gửi & Căn cứ (có thể gợi ý nhưng linh hoạt) -->
         <div class="mb-4 space-y-1">
             <div class="flex items-center space-x-1">
                 <span class="font-bold flex-shrink-0">Kính gửi:</span>
@@ -274,7 +318,6 @@
             </div>
         </div>
 
-        <!-- 1. Danh sách thu -->
         <div class="mb-4">
             <p class="font-bold uppercase text-[11px] mb-1 text-youthBlue">I. PHẦN THU KINH PHÍ</p>
             <table class="w-full border-collapse border border-slate-400 text-[10px]">
@@ -291,7 +334,6 @@
             </table>
         </div>
 
-        <!-- 2. Danh sách chi -->
         <div class="mb-4">
             <p class="font-bold uppercase text-[11px] mb-1 text-youthOrange">II. PHẦN CHI KINH PHÍ</p>
             <table class="w-full border-collapse border border-slate-400 text-[10px]">
@@ -308,7 +350,6 @@
             </table>
         </div>
 
-        <!-- 3. Tổng kết cân đối -->
         <div class="mb-6 bg-slate-50 border border-slate-300 p-3 rounded">
             <p class="font-bold uppercase text-[11px] mb-1">III. TỔNG KẾT CÂN ĐỐI QUỸ</p>
             <div class="flex justify-between py-1 border-b border-slate-200">
@@ -325,7 +366,6 @@
             </div>
         </div>
 
-        <!-- Chữ ký xác nhận -->
         <div class="flex justify-between mt-8">
             <div class="text-center w-5/12">
                 <p class="font-bold uppercase text-[10px]">BAN TỰ QUẢN BUÔN HAI - ĐẮK</p>
@@ -341,14 +381,44 @@
         </div>
     </div>
 
-    <!-- FOOTER -->
-    <footer class="text-center py-3 text-[10px] text-slate-400 no-print">
-        Đoàn xã Cư M'ta - Chi Đoàn Buôn Hai - Đắk &copy; 2026
-    </footer>
-
-    <!-- SCRIPT TÍCH HỢP FIREBASE & LOGIC -->
+    <!-- SCRIPT XỬ LÝ ĐĂNG NHẬP VÀ DỮ LIỆU -->
     <script>
-        // Cấu hình Firebase của bạn
+        // Kiểm tra trạng thái đăng nhập khi tải trang
+        window.addEventListener('DOMContentLoaded', () => {
+            const isLogged = localStorage.getItem('chiDoanLogged');
+            if (isLogged === 'true') {
+                showApp();
+            }
+        });
+
+        function handleLogin() {
+            const u = document.getElementById('loginUser').value.trim();
+            const p = document.getElementById('loginPass').value.trim();
+
+            if (u === 'chidoanhaidak' && p === '01072026') {
+                localStorage.setItem('chiDoanLogged', 'true');
+                showApp();
+            } else {
+                alert('Tên đăng nhập hoặc mật khẩu không chính xác!');
+            }
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('chiDoanLogged');
+            document.getElementById('screenLogin').classList.remove('hidden');
+            document.getElementById('mainAppContent').classList.add('hidden');
+            document.getElementById('mainAppContent').classList.remove('flex');
+        }
+
+        function showApp() {
+            document.getElementById('screenLogin').classList.add('hidden');
+            const mainApp = document.getElementById('mainAppContent');
+            mainApp.classList.remove('hidden');
+            mainApp.classList.add('flex');
+            initFirebaseApp();
+        }
+
+        // Cấu hình Firebase
         const firebaseConfig = {
             apiKey: "AIzaSyC6uQ227DeF5M1nvDjqGwI88Y0kjAAaQHk",
             authDomain: "chidoan-ae7ef.firebaseapp.com",
@@ -358,44 +428,47 @@
             appId: "1:472447312925:web:273ca979066a118c5552f4"
         };
 
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-
+        let db = null;
         let activitiesData = {};
         let staffList = ["Trần Vũ Lực (BTCĐ)"];
         let currentActId = null;
+
+        function initFirebaseApp() {
+            if (!firebase.apps.length) {
+                firebase.initializeApp(firebaseConfig);
+            }
+            db = firebase.database();
+
+            document.getElementById('thuNgayGio').value = getCurrentDateTimeLocal();
+            document.getElementById('chiNgayGio').value = getCurrentDateTimeLocal();
+            document.getElementById('actFrom').value = new Date().toISOString().slice(0, 10);
+            document.getElementById('actTo').value = new Date().toISOString().slice(0, 10);
+            document.getElementById('globalFromDate').value = new Date().toISOString().slice(0, 10);
+            document.getElementById('globalToDate').value = new Date().toISOString().slice(0, 10);
+
+            db.ref('staffs').on('value', (snapshot) => {
+                if (snapshot.exists()) {
+                    staffList = snapshot.val();
+                } else {
+                    db.ref('staffs').set(staffList);
+                }
+                updateStaffDropdowns();
+            });
+
+            db.ref('activities').on('value', (snapshot) => {
+                activitiesData = snapshot.val() || {};
+                renderActivities();
+                if (currentActId && activitiesData[currentActId]) {
+                    renderTransactions();
+                }
+            });
+        }
 
         function getCurrentDateTimeLocal() {
             const now = new Date();
             now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
             return now.toISOString().slice(0, 16);
         }
-
-        document.getElementById('thuNgayGio').value = getCurrentDateTimeLocal();
-        document.getElementById('chiNgayGio').value = getCurrentDateTimeLocal();
-        document.getElementById('actFrom').value = new Date().toISOString().slice(0, 10);
-        document.getElementById('actTo').value = new Date().toISOString().slice(0, 10);
-        
-        document.getElementById('globalFromDate').value = new Date().toISOString().slice(0, 10);
-        document.getElementById('globalToDate').value = new Date().toISOString().slice(0, 10);
-
-        // Lắng nghe dữ liệu Firebase Realtime
-        db.ref('staffs').on('value', (snapshot) => {
-            if (snapshot.exists()) {
-                staffList = snapshot.val();
-            } else {
-                db.ref('staffs').set(staffList);
-            }
-            updateStaffDropdowns();
-        });
-
-        db.ref('activities').on('value', (snapshot) => {
-            activitiesData = snapshot.val() || {};
-            renderActivities();
-            if (currentActId && activitiesData[currentActId]) {
-                renderTransactions();
-            }
-        });
 
         function updateStaffDropdowns() {
             ['thuNguoiSelect', 'chiNguoiSelect'].forEach(id => {
@@ -437,7 +510,6 @@
             return val;
         }
 
-        // Hoạt động
         function saveActivity() {
             const name = document.getElementById('actName').value.trim();
             const from = document.getElementById('actFrom').value;
@@ -556,7 +628,6 @@
             return d.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) + ' ' + d.toLocaleDateString('vi-VN');
         }
 
-        // Thu Chi Giao dịch
         function saveThu() {
             const ngaygio = document.getElementById('thuNgayGio').value;
             const nguoi = getSelectedUser('thu');
@@ -688,7 +759,6 @@
             lblBalance.className = balance < 0 ? "text-xs font-extrabold text-rose-600 mt-0.5" : "text-xs font-extrabold text-emerald-700 mt-0.5";
         }
 
-        // Báo cáo & Xuất PDF
         function exportPDF() {
             const act = activitiesData[currentActId];
             if (!act) return;

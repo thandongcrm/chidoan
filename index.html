@@ -30,7 +30,31 @@
     </script>
     <style>
         body { box-sizing: border-box; }
-        @media print { .no-print { display: none !important; } }
+        @media print { 
+            .no-print { display: none !important; } 
+            body { background: white !important; }
+        }
+        .readonly-hidden { display: none !important; }
+        
+        /* CSS chuẩn cho trang giấy A4 khi xuất PDF */
+        #pdfTemplate {
+            width: 210mm;
+            padding: 10mm 15mm;
+            background: white;
+            color: #0f172a;
+            font-family: sans-serif;
+            font-size: 11px;
+        }
+        #pdfTemplate table {
+            page-break-inside: auto;
+        }
+        #pdfTemplate tr {
+            page-break-inside: avoid;
+            page-break-after: auto;
+        }
+        #pdfTemplate thead {
+            display: table-header-group;
+        }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen flex flex-col justify-between">
@@ -76,10 +100,13 @@
                     <p class="text-[9px] uppercase tracking-wider text-orange-200 font-extrabold">ĐOÀN XÃ CƯ M'TA</p>
                     <h1 class="text-xs uppercase font-black tracking-wide mt-0.5">CHI ĐOÀN BUÔN HAI - ĐẮK</h1>
                 </div>
-                <button onclick="handleLogout()" class="bg-white/20 hover:bg-white/30 text-white px-2.5 py-1.5 rounded-xl text-[10px] font-bold transition-all flex items-center space-x-1" title="Đăng xuất">
-                    <i class="fa-solid fa-right-from-bracket"></i>
-                    <span>Thoát</span>
-                </button>
+                <div class="flex items-center space-x-2">
+                    <span id="roleBadge" class="text-[9px] bg-white/20 px-2 py-1 rounded-lg font-bold uppercase"></span>
+                    <button onclick="handleLogout()" class="bg-white/20 hover:bg-white/30 text-white px-2.5 py-1.5 rounded-xl text-[10px] font-bold transition-all flex items-center space-x-1" title="Đăng xuất">
+                        <i class="fa-solid fa-right-from-bracket"></i>
+                        <span>Thoát</span>
+                    </button>
+                </div>
             </div>
         </header>
 
@@ -94,8 +121,8 @@
                 </button>
 
                 <!-- Thẻ tạo hoạt động mới -->
-                <div class="bg-white rounded-2xl shadow-md border-2 border-orange-200 p-4 relative overflow-hidden">
-                    <div class="absolute top-0 right-0 bg-youthOrange text-white text-[9px] font-bold px-3 py-1 rounded-bl-xl uppercase">Firebase Realtime</div>
+                <div id="cardCreateActivity" class="bg-white rounded-2xl shadow-md border-2 border-orange-200 p-4 relative overflow-hidden">
+                    <div class="absolute top-0 right-0 bg-youthOrange text-white text-[9px] font-bold px-3 py-1 rounded-bl-xl uppercase">Quản trị</div>
                     <h3 class="text-xs font-black text-youthOrange uppercase mb-3 flex items-center">
                         <i class="fa-solid fa-folder-plus mr-1.5 text-sm"></i> Tạo Hoạt Động Thu / Chi Mới
                     </h3>
@@ -164,7 +191,7 @@
                 </div>
 
                 <!-- Form Nhập Liệu Thu / Chi -->
-                <div class="bg-white rounded-2xl shadow-sm border-2 border-cyan-100 overflow-hidden">
+                <div id="formSection" class="bg-white rounded-2xl shadow-sm border-2 border-cyan-100 overflow-hidden">
                     <div class="flex border-b border-slate-100 bg-slate-50">
                         <button onclick="switchTab('thu')" id="tabThuBtn" class="flex-1 py-3 text-xs font-bold text-youthBlue border-b-2 border-youthBlue bg-white transition-all">
                             <i class="fa-solid fa-circle-plus mr-1"></i> NHẬP THU
@@ -284,8 +311,8 @@
         </div>
     </div>
 
-    <!-- FORM MẪU BÁO CÁO CHUẨN ĐỂ XUẤT PDF (CĂN CHỈNH GỌN GÀNG 1 TRANG A4) -->
-    <div id="pdfTemplate" class="hidden bg-white p-6 text-slate-900 text-[11px] font-sans" style="width: 210mm; min-height: 297mm; margin: 0 auto;">
+    <!-- FORM MẪU BÁO CÁO CHUẨN ĐỂ XUẤT PDF -->
+    <div id="pdfTemplate" class="hidden">
         <div class="flex justify-between items-start mb-3">
             <div class="text-center w-5/12">
                 <p class="font-bold uppercase text-[10px]">ĐOÀN TNCS HỒ CHÍ MINH</p>
@@ -381,16 +408,15 @@
         </div>
     </div>
 
-    <!-- FOOTER -->
-    <footer class="text-center py-3 text-[10px] text-slate-400 no-print">
-        Đoàn xã Cư M'ta - Chi Đoàn Buôn Hai - Đắk &copy; 2026
-    </footer>
-
     <!-- SCRIPT XỬ LÝ -->
     <script>
+        let currentUserRole = 'admin';
+
         window.addEventListener('DOMContentLoaded', () => {
             const isLogged = localStorage.getItem('chiDoanLogged');
+            const role = localStorage.getItem('chiDoanRole');
             if (isLogged === 'true') {
+                currentUserRole = role || 'admin';
                 showApp();
             }
         });
@@ -399,16 +425,28 @@
             const u = document.getElementById('loginUser').value.trim();
             const p = document.getElementById('loginPass').value.trim();
 
-            if (u === 'chidoanhaidak' && p === '01072026') {
-                localStorage.setItem('chiDoanLogged', 'true');
-                showApp();
+            if (u === 'chidoanhaidak') {
+                if (p === '01072026') {
+                    localStorage.setItem('chiDoanLogged', 'true');
+                    localStorage.setItem('chiDoanRole', 'admin');
+                    currentUserRole = 'admin';
+                    showApp();
+                } else if (p === 'chidoanhaidak') {
+                    localStorage.setItem('chiDoanLogged', 'true');
+                    localStorage.setItem('chiDoanRole', 'view');
+                    currentUserRole = 'view';
+                    showApp();
+                } else {
+                    alert('Mật khẩu không chính xác!');
+                }
             } else {
-                alert('Tên đăng nhập hoặc mật khẩu không chính xác!');
+                alert('Tên đăng nhập không chính xác!');
             }
         }
 
         function handleLogout() {
             localStorage.removeItem('chiDoanLogged');
+            localStorage.removeItem('chiDoanRole');
             document.getElementById('screenLogin').classList.remove('hidden');
             document.getElementById('mainAppContent').classList.add('hidden');
             document.getElementById('mainAppContent').classList.remove('flex');
@@ -419,6 +457,23 @@
             const mainApp = document.getElementById('mainAppContent');
             mainApp.classList.remove('hidden');
             mainApp.classList.add('flex');
+
+            const badge = document.getElementById('roleBadge');
+            const createActCard = document.getElementById('cardCreateActivity');
+            const formSec = document.getElementById('formSection');
+
+            if (currentUserRole === 'view') {
+                badge.innerText = "Chế độ: Chỉ Xem";
+                badge.className = "text-[9px] bg-amber-500/80 px-2 py-1 rounded-lg font-bold uppercase";
+                if(createActCard) createActCard.classList.add('readonly-hidden');
+                if(formSec) formSec.classList.add('readonly-hidden');
+            } else {
+                badge.innerText = "Quản trị viên";
+                badge.className = "text-[9px] bg-emerald-500/80 px-2 py-1 rounded-lg font-bold uppercase";
+                if(createActCard) createActCard.classList.remove('readonly-hidden');
+                if(formSec) formSec.classList.remove('readonly-hidden');
+            }
+
             initFirebaseApp();
         }
 
@@ -484,6 +539,7 @@
         }
 
         function handleUserChange(type) {
+            if(currentUserRole === 'view') return;
             const selectId = type === 'thu' ? 'thuNguoiSelect' : 'chiNguoiSelect';
             const inputId = type === 'thu' ? 'thuNguoiCustom' : 'chiNguoiCustom';
             const val = document.getElementById(selectId).value;
@@ -515,6 +571,7 @@
         }
 
         function saveActivity() {
+            if(currentUserRole === 'view') { alert('Tài khoản chỉ xem không có quyền thực hiện thao tác này!'); return; }
             const name = document.getElementById('actName').value.trim();
             const from = document.getElementById('actFrom').value;
             const to = document.getElementById('actTo').value;
@@ -551,6 +608,13 @@
                 const totalChi = Object.values(act.chi || {}).reduce((s, i) => s + i.sotien, 0);
                 const balance = totalThu - totalChi;
 
+                const actionButtons = currentUserRole === 'admin' ? `
+                    <div class="flex justify-end space-x-2 pt-1 border-t border-slate-200/60">
+                        <button onclick="editActivity('${key}')" class="text-[11px] text-blue-600 font-bold px-2 py-1 bg-blue-100/70 rounded-lg hover:bg-blue-200"><i class="fa-solid fa-pen mr-1"></i> Sửa</button>
+                        <button onclick="deleteActivity('${key}')" class="text-[11px] text-rose-600 font-bold px-2 py-1 bg-rose-100/70 rounded-lg hover:bg-rose-200"><i class="fa-solid fa-trash mr-1"></i> Xóa</button>
+                    </div>
+                ` : '';
+
                 return `
                     <div class="bg-gradient-to-r from-blue-50/60 to-orange-50/40 border border-slate-200 p-3 rounded-xl flex flex-col space-y-2 shadow-xs transition-all hover:border-youthOrange">
                         <div class="flex justify-between items-start cursor-pointer" onclick="openActivityDetail('${key}')">
@@ -560,16 +624,14 @@
                             </div>
                             <span class="text-[10px] font-bold px-2 py-1 rounded-lg ${balance >= 0 ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">${balance.toLocaleString()} đ</span>
                         </div>
-                        <div class="flex justify-end space-x-2 pt-1 border-t border-slate-200/60">
-                            <button onclick="editActivity('${key}')" class="text-[11px] text-blue-600 font-bold px-2 py-1 bg-blue-100/70 rounded-lg hover:bg-blue-200"><i class="fa-solid fa-pen mr-1"></i> Sửa</button>
-                            <button onclick="deleteActivity('${key}')" class="text-[11px] text-rose-600 font-bold px-2 py-1 bg-rose-100/70 rounded-lg hover:bg-rose-200"><i class="fa-solid fa-trash mr-1"></i> Xóa</button>
-                        </div>
+                        ${actionButtons}
                     </div>
                 `;
             }).join('');
         }
 
         function editActivity(key) {
+            if(currentUserRole === 'view') return;
             const act = activitiesData[key];
             if (!act) return;
             document.getElementById('actName').value = act.name;
@@ -581,6 +643,7 @@
         }
 
         function deleteActivity(key) {
+            if(currentUserRole === 'view') return;
             if (confirm('Xóa hoạt động này cùng toàn bộ thu chi bên trong?')) {
                 db.ref(`activities/${key}`).remove();
             }
@@ -634,6 +697,7 @@
         }
 
         function saveThu() {
+            if(currentUserRole === 'view') return;
             const ngaygio = document.getElementById('thuNgayGio').value;
             const nguoi = getSelectedUser('thu');
             const sotien = parseFloat(document.getElementById('thuSoTien').value);
@@ -661,6 +725,7 @@
         }
 
         function editThu(key) {
+            if(currentUserRole === 'view') return;
             const item = activitiesData[currentActId].thu[key];
             document.getElementById('thuNgayGio').value = item.ngaygio;
             document.getElementById('thuSoTien').value = item.sotien;
@@ -673,9 +738,13 @@
             switchTab('thu');
         }
 
-        function deleteThu(key) { if (confirm('Xóa khoản thu?')) db.ref(`activities/${currentActId}/thu/${key}`).remove(); }
+        function deleteThu(key) {
+            if(currentUserRole === 'view') return;
+            if (confirm('Xóa khoản thu?')) db.ref(`activities/${currentActId}/thu/${key}`).remove();
+        }
 
         function saveChi() {
+            if(currentUserRole === 'view') return;
             const ngaygio = document.getElementById('chiNgayGio').value;
             const nguoi = getSelectedUser('chi');
             const sotien = parseFloat(document.getElementById('chiSoTien').value);
@@ -703,6 +772,7 @@
         }
 
         function editChi(key) {
+            if(currentUserRole === 'view') return;
             const item = activitiesData[currentActId].chi[key];
             document.getElementById('chiNgayGio').value = item.ngaygio;
             document.getElementById('chiSoTien').value = item.sotien;
@@ -715,7 +785,10 @@
             switchTab('chi');
         }
 
-        function deleteChi(key) { if (confirm('Xóa khoản chi?')) db.ref(`activities/${currentActId}/chi/${key}`).remove(); }
+        function deleteChi(key) {
+            if(currentUserRole === 'view') return;
+            if (confirm('Xóa khoản chi?')) db.ref(`activities/${currentActId}/chi/${key}`).remove();
+        }
 
         function renderTransactions() {
             const act = activitiesData[currentActId];
@@ -725,6 +798,8 @@
             const thuKeys = Object.keys(thuObj);
             const chiKeys = Object.keys(chiObj);
 
+            const showActions = currentUserRole === 'admin';
+
             document.getElementById('listThuContainer').innerHTML = thuKeys.length === 0 ? `<p class="text-center text-slate-400 text-xs py-3">Chưa có dữ liệu thu</p>` : thuKeys.map(key => `
                 <div class="bg-blue-50/50 border border-blue-100 p-2.5 rounded-xl flex justify-between items-center text-xs">
                     <div class="space-y-0.5 pr-2">
@@ -732,10 +807,12 @@
                         <p class="text-[10px] text-slate-500">${formatDateTime(thuObj[key].ngaygio)} | Thu: <span class="font-semibold text-slate-700">${thuObj[key].nguoi}</span></p>
                         <p class="font-extrabold text-youthBlue text-sm">+${formatMoney(thuObj[key].sotien)}</p>
                     </div>
-                    <div class="flex space-x-1 flex-shrink-0">
-                        <button onclick="editThu('${key}')" class="bg-blue-200 hover:bg-blue-300 text-blue-800 p-1.5 rounded-lg"><i class="fa-solid fa-pen text-[10px]"></i></button>
-                        <button onclick="deleteThu('${key}')" class="bg-rose-200 hover:bg-rose-300 text-rose-800 p-1.5 rounded-lg"><i class="fa-solid fa-trash text-[10px]"></i></button>
-                    </div>
+                    ${showActions ? `
+                        <div class="flex space-x-1 flex-shrink-0">
+                            <button onclick="editThu('${key}')" class="bg-blue-200 hover:bg-blue-300 text-blue-800 p-1.5 rounded-lg"><i class="fa-solid fa-pen text-[10px]"></i></button>
+                            <button onclick="deleteThu('${key}')" class="bg-rose-200 hover:bg-rose-300 text-rose-800 p-1.5 rounded-lg"><i class="fa-solid fa-trash text-[10px]"></i></button>
+                        </div>
+                    ` : ''}
                 </div>
             `).join('');
 
@@ -746,10 +823,12 @@
                         <p class="text-[10px] text-slate-500">${formatDateTime(chiObj[key].ngaygio)} | Chi: <span class="font-semibold text-slate-700">${chiObj[key].nguoi}</span></p>
                         <p class="font-extrabold text-youthOrange text-sm">-${formatMoney(chiObj[key].sotien)}</p>
                     </div>
-                    <div class="flex space-x-1 flex-shrink-0">
-                        <button onclick="editChi('${key}')" class="bg-orange-200 hover:bg-orange-300 text-orange-800 p-1.5 rounded-lg"><i class="fa-solid fa-pen text-[10px]"></i></button>
-                        <button onclick="deleteChi('${key}')" class="bg-rose-200 hover:bg-rose-300 text-rose-800 p-1.5 rounded-lg"><i class="fa-solid fa-trash text-[10px]"></i></button>
-                    </div>
+                    ${showActions ? `
+                        <div class="flex space-x-1 flex-shrink-0">
+                            <button onclick="editChi('${key}')" class="bg-orange-200 hover:bg-orange-300 text-orange-800 p-1.5 rounded-lg"><i class="fa-solid fa-pen text-[10px]"></i></button>
+                            <button onclick="deleteChi('${key}')" class="bg-rose-200 hover:bg-rose-300 text-rose-800 p-1.5 rounded-lg"><i class="fa-solid fa-trash text-[10px]"></i></button>
+                        </div>
+                    ` : ''}
                 </div>
             `).join('');
 
@@ -847,12 +926,11 @@
             element.classList.remove('hidden');
 
             const opt = {
-                margin:       [4, 4, 4, 4],
+                margin:       0,
                 filename:     filename,
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' },
-                pagebreak:    { mode: ['avoid-all', 'css', 'legacy'] }
+                html2canvas:  { scale: 2, useCORS: true, letterRendering: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
             html2pdf().from(element).set(opt).save().then(() => {

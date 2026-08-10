@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CHI ĐOÀN BUÔN HAI - ĐẮK</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- html2pdf.js để xuất file PDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#0284c7', // Xanh dương chủ đạo
+                        secondary: '#f97316', // Cam nổi bật
+                        dark: '#0f172a',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            box-sizing: border-box;
+        }
+        /* Ẩn các phần tử không cần thiết khi in/xuất PDF */
+        @media print {
+            .no-print { display: none !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen flex flex-col justify-between">
+
+    <!-- HEADER -->
+    <header class="bg-gradient-to-r from-primary to-cyan-700 text-white shadow-md p-4 sticky top-0 z-50">
+        <div class="max-w-md mx-auto text-center">
+            <h1 class="text-xs uppercase tracking-widest text-orange-300 font-bold">CHI ĐOÀN BUÔN HAI - ĐẮK</h1>
+            <h2 class="text-base font-extrabold mt-0.5 leading-snug">Hè 2026: BÓNG ĐÁ NHI ĐỒNG</h2>
+        </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="max-w-md w-full mx-auto p-3 space-y-4 mb-16 flex-grow">
+
+        <!-- THỐNG KÊ TỔNG QUAN -->
+        <div class="grid grid-cols-3 gap-2 bg-white p-3 rounded-2xl shadow-sm border border-slate-200 text-center">
+            <div class="bg-blue-50 p-2 rounded-xl">
+                <p class="text-[10px] text-blue-600 font-bold uppercase">Tổng Thu</p>
+                <p id="lblTotalThu" class="text-sm font-extrabold text-blue-700 mt-0.5">0 đ</p>
+            </div>
+            <div class="bg-orange-50 p-2 rounded-xl">
+                <p class="text-[10px] text-orange-600 font-bold uppercase">Tổng Chi</p>
+                <p id="lblTotalChi" class="text-sm font-extrabold text-orange-600 mt-0.5">0 đ</p>
+            </div>
+            <div class="bg-emerald-50 p-2 rounded-xl">
+                <p class="text-[10px] text-emerald-600 font-bold uppercase">Còn Lại</p>
+                <p id="lblBalance" class="text-sm font-extrabold text-emerald-700 mt-0.5">0 đ</p>
+            </div>
+        </div>
+
+        <!-- FORM NHẬP LIỆU THU / CHI -->
+        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+            <!-- Tabs -->
+            <div class="flex border-b border-slate-100 bg-slate-50">
+                <button onclick="switchTab('thu')" id="tabThuBtn" class="flex-1 py-3 text-xs font-bold text-primary border-b-2 border-primary bg-white transition-all">
+                    <i class="fa-solid fa-circle-plus mr-1"></i> NHẬP THU
+                </button>
+                <button onclick="switchTab('chi')" id="tabChiBtn" class="flex-1 py-3 text-xs font-bold text-slate-400 transition-all">
+                    <i class="fa-solid fa-circle-minus mr-1"></i> NHẬP CHI
+                </button>
+            </div>
+
+            <!-- Form Thu -->
+            <div id="formThuContent" class="p-4 space-y-3">
+                <input type="hidden" id="editThuIndex" value="-1">
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-500 mb-1">Thời gian thu</label>
+                    <input type="datetime-local" id="thuNgayGio" class="w-full text-xs p-2.5 rounded-xl border border-slate-300 bg-slate-50 focus:outline-none focus:border-primary">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-500 mb-1">Người thu</label>
+                    <input type="text" id="thuNguoi" value="Trần Vũ Lực (BTCĐ)" readonly class="w-full text-xs p-2.5 rounded-xl border border-slate-200 bg-slate-100 text-slate-600 font-semibold cursor-not-allowed">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-500 mb-1">Số tiền (VNĐ)</label>
+                    <input type="number" id="thuSoTien" placeholder="Nhập số tiền..." class="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-primary">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-500 mb-1">Nội dung thu</label>
+                    <input type="text" id="thuNoiDung" placeholder="VD: Đóng góp quỹ đội bóng..." class="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-primary">
+                </div>
+                <button onclick="saveThu()" id="btnSaveThu" class="w-full bg-primary hover:bg-blue-700 text-white font-bold text-xs py-3 rounded-xl shadow-sm transition-all">
+                    Lưu Khoản Thu
+                </button>
+            </div>
+
+            <!-- Form Chi -->
+            <div id="formChiContent" class="p-4 space-y-3 hidden">
+                <input type="hidden" id="editChiIndex" value="-1">
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-500 mb-1">Thời gian chi</label>
+                    <input type="datetime-local" id="chiNgayGio" class="w-full text-xs p-2.5 rounded-xl border border-slate-300 bg-slate-50 focus:outline-none focus:border-secondary">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-500 mb-1">Người chi</label>
+                    <input type="text" id="chiNguoi" placeholder="Nhập tên người chi..." class="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-secondary">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-500 mb-1">Số tiền (VNĐ)</label>
+                    <input type="number" id="chiSoTien" placeholder="Nhập số tiền..." class="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-secondary">
+                </div>
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-500 mb-1">Nội dung chi</label>
+                    <input type="text" id="chiNoiDung" placeholder="VD: Mua nước suối, bóng đá..." class="w-full text-xs p-2.5 rounded-xl border border-slate-300 focus:outline-none focus:border-secondary">
+                </div>
+                <button onclick="saveChi()" id="btnSaveChi" class="w-full bg-secondary hover:bg-orange-600 text-white font-bold text-xs py-3 rounded-xl shadow-sm transition-all">
+                    Lưu Khoản Chi
+                </button>
+            </div>
+        </div>
+
+        <!-- DANH SÁCH THU & CHI -->
+        <div class="space-y-4">
+            <!-- Danh sách Thu -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-3">
+                <h3 class="text-xs font-bold text-blue-700 uppercase mb-2 border-b pb-1.5 flex justify-between items-center">
+                    <span><i class="fa-solid fa-list-ul mr-1"></i> Danh sách Thu</span>
+                    <span id="countThu" class="text-[10px] bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">0 mục</span>
+                </h3>
+                <div id="listThuContainer" class="space-y-2 max-h-56 overflow-y-auto pr-1">
+                    <p class="text-center text-slate-400 text-xs py-3">Chưa có dữ liệu thu</p>
+                </div>
+            </div>
+
+            <!-- Danh sách Chi -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-200 p-3">
+                <h3 class="text-xs font-bold text-orange-600 uppercase mb-2 border-b pb-1.5 flex justify-between items-center">
+                    <span><i class="fa-solid fa-list-ul mr-1"></i> Danh sách Chi</span>
+                    <span id="countChi" class="text-[10px] bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full">0 mục</span>
+                </h3>
+                <div id="listChiContainer" class="space-y-2 max-h-56 overflow-y-auto pr-1">
+                    <p class="text-center text-slate-400 text-xs py-3">Chưa có dữ liệu chi</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- NÚT XUẤT BÁO CÁO PDF -->
+        <button onclick="exportPDF()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs py-3.5 rounded-2xl shadow-md flex items-center justify-center space-x-2 transition-all">
+            <i class="fa-solid fa-file-pdf text-sm"></i>
+            <span>TẢI BÁO CÁO THU CHI (PDF TRÌNH KÍ)</span>
+        </button>
+    </main>
+
+    <!-- FORM BÁO CÁO CHUẨN ĐỂ XUẤT PDF (ẨN TRÊN GIAO DIỆN CHÍNH, HIỆN KHI XUẤT) -->
+    <div id="pdfTemplate" class="hidden bg-white p-8 text-slate-900 text-xs font-sans" style="width: 210mm; min-height: 297mm; margin: 0 auto;">
+        <!-- Tiêu đề quốc hiệu -->
+        <div class="flex justify-between items-start mb-4">
+            <div class="text-center w-5/12">
+                <p class="font-bold uppercase text-[11px]">ĐOÀN TNCS HỒ CHÍ MINH</p>
+                <p class="font-bold text-[11px] underline uppercase">CHI ĐOÀN BUÔN HAI - ĐẮK</p>
+            </div>
+            <div class="text-center w-7/12">
+                <p class="font-bold uppercase text-[11px]">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</p>
+                <p class="font-bold text-[11px] underline">Độc lập - Tự do - Hạnh phúc</p>
+            </div>
+        </div>
+
+        <div class="text-right italic text-[11px] mb-4">
+            <span id="pdfCurrentDate">Buôn Hai - Đắk, ngày ... tháng ... năm 2026</span>
+        </div>
+
+        <!-- Tiêu đề báo cáo -->
+        <div class="text-center mb-6">
+            <h2 class="font-extrabold text-sm uppercase">BÁO CÁO THU CHI HOẠT ĐỘNG HÈ 2026</h2>
+            <h3 class="font-bold text-xs uppercase text-slate-700 mt-1">Nội dung: Bóng đá nhi đồng buôn Hai - Đắk</h3>
+        </div>
+
+        <!-- Kính gửi -->
+        <div class="mb-4">
+            <p class="font-bold">Kính gửi: Ban Tự quản Buôn Hai - Đắk</p>
+            <p class="mt-1">Căn cứ kế hoạch tổ chức hoạt động hè năm 2026, Chi đoàn Buôn Hai - Đắk báo cáo chi tiết thu, chi tài chính cho giải bóng đá nhi đồng cụ thể như sau:</p>
+        </div>
+
+        <!-- 1. Danh sách thu -->
+        <div class="mb-4">
+            <p class="font-bold uppercase text-[11px] mb-1 text-blue-800">I. PHẦN THU KINH PHÍ</p>
+            <table class="w-full border-collapse border border-slate-400 text-[11px]">
+                <thead>
+                    <tr class="bg-slate-200">
+                        <th class="border border-slate-400 p-1.5 w-10 text-center">STT</th>
+                        <th class="border border-slate-400 p-1.5">Thời gian</th>
+                        <th class="border border-slate-400 p-1.5">Nội dung thu</th>
+                        <th class="border border-slate-400 p-1.5">Người thu</th>
+                        <th class="border border-slate-400 p-1.5 text-right">Số tiền (VNĐ)</th>
+                    </tr>
+                </thead>
+                <tbody id="pdfTableThu">
+                    <!-- Dynamic Rows -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 2. Danh sách chi -->
+        <div class="mb-4">
+            <p class="font-bold uppercase text-[11px] mb-1 text-orange-700">II. PHẦN CHI KINH PHÍ</p>
+            <table class="w-full border-collapse border border-slate-400 text-[11px]">
+                <thead>
+                    <tr class="bg-slate-200">
+                        <th class="border border-slate-400 p-1.5 w-10 text-center">STT</th>
+                        <th class="border border-slate-400 p-1.5">Thời gian</th>
+                        <th class="border border-slate-400 p-1.5">Nội dung chi</th>
+                        <th class="border border-slate-400 p-1.5">Người chi</th>
+                        <th class="border border-slate-400 p-1.5 text-right">Số tiền (VNĐ)</th>
+                    </tr>
+                </thead>
+                <tbody id="pdfTableChi">
+                    <!-- Dynamic Rows -->
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 3. Tổng kết cân đối -->
+        <div class="mb-6 bg-slate-50 border border-slate-300 p-3 rounded">
+            <p class="font-bold uppercase text-[11px] mb-1">III. TỔNG KẾT CÂN ĐỐI QUỸ</p>
+            <div class="flex justify-between py-1 border-b border-slate-200">
+                <span>- Tổng thu:</span>
+                <span id="pdfSumThu" class="font-bold">0 đ</span>
+            </div>
+            <div class="flex justify-between py-1 border-b border-slate-200">
+                <span>- Tổng chi:</span>
+                <span id="pdfSumChi" class="font-bold">0 đ</span>
+            </div>
+            <div class="flex justify-between py-1 text-emerald-700 font-bold text-xs">
+                <span>- Số dư tồn quỹ (Thu - Chi):</span>
+                <span id="pdfSumBalance">0 đ</span>
+            </div>
+        </div>
+
+        <!-- Chữ ký xác nhận -->
+        <div class="flex justify-between mt-8">
+            <div class="text-center w-5/12">
+                <p class="font-bold uppercase text-[11px]">BAN TỰ QUẢN BUÔN HAI - ĐẮK</p>
+                <p class="italic text-[10px]">(Ký, ghi rõ họ tên)</p>
+                <div class="h-20"></div>
+            </div>
+            <div class="text-center w-5/12">
+                <p class="font-bold uppercase text-[11px]">BÍ THƯ CHI ĐOÀN</p>
+                <p class="italic text-[10px]">(Ký, ghi rõ họ tên)</p>
+                <div class="h-16"></div>
+                <p class="font-bold uppercase text-xs">Trần Vũ Lực</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="text-center py-3 text-[10px] text-slate-400 no-print">
+        Chi Đoàn Buôn Hai - Đắk &copy; 2026
+    </footer>
+
+    <!-- SCRIPT XỬ LÝ LOGIC -->
+    <script>
+        // Dữ liệu lưu trong localStorage
+        let thuList = JSON.parse(localStorage.getItem('chiDoanThu')) || [];
+        let chiList = JSON.parse(localStorage.getItem('chiDoanChi')) || [];
+
+        // Tự động hiển thị ngày giờ hiện tại cho form
+        function getCurrentDateTimeLocal() {
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            return now.toISOString().slice(0, 16);
+        }
+
+        document.getElementById('thuNgayGio').value = getCurrentDateTimeLocal();
+        document.getElementById('chiNgayGio').value = getCurrentDateTimeLocal();
+
+        // Chuyển đổi tab Nhập Thu / Nhập Chi
+        function switchTab(type) {
+            const tabThuBtn = document.getElementById('tabThuBtn');
+            const tabChiBtn = document.getElementById('tabChiBtn');
+            const formThu = document.getElementById('formThuContent');
+            const formChi = document.getElementById('formChiContent');
+
+            if (type === 'thu') {
+                tabThuBtn.className = "flex-1 py-3 text-xs font-bold text-primary border-b-2 border-primary bg-white transition-all";
+                tabChiBtn.className = "flex-1 py-3 text-xs font-bold text-slate-400 transition-all";
+                formThu.classList.remove('hidden');
+                formChi.classList.add('hidden');
+            } else {
+                tabChiBtn.className = "flex-1 py-3 text-xs font-bold text-secondary border-b-2 border-secondary bg-white transition-all";
+                tabThuBtn.className = "flex-1 py-3 text-xs font-bold text-slate-400 transition-all";
+                formChi.classList.remove('hidden');
+                formThu.classList.add('hidden');
+            }
+        }
+
+        // Format tiền tệ VNĐ
+        function formatMoney(amount) {
+            return Number(amount).toLocaleString('vi-VN') + ' đ';
+        }
+
+        // Format ngày giờ hiển thị gọn
+        function formatDateTime(dtStr) {
+            if (!dtStr) return '';
+            const d = new Date(dtStr);
+            return d.toLocaleTimeString('vi-VN', {hour: '2-digit', minute:'2-digit'}) + ' ' + d.toLocaleDateString('vi-VN');
+        }
+
+        // --- QUẢN LÝ THU ---
+        function saveThu() {
+            const ngaygio = document.getElementById('thuNgayGio').value;
+            const nguoi = "Trần Vũ Lực (BTCĐ)";
+            const sotien = parseFloat(document.getElementById('thuSoTien').value);
+            const noidung = document.getElementById('thuNoiDung').value.trim();
+            const editIndex = parseInt(document.getElementById('editThuIndex').value);
+
+            if (!ngaygio || !sotien || !noidung) {
+                alert('Vui lòng điền đầy đủ thông tin thu!');
+                return;
+            }
+
+            const item = { ngaygio, nguoi, sotien, noidung };
+
+            if (editIndex === -1) {
+                thuList.push(item);
+            } else {
+                thuList[editIndex] = item;
+                document.getElementById('editThuIndex').value = -1;
+                document.getElementById('btnSaveThu').innerText = "Lưu Khoản Thu";
+            }
+
+            localStorage.setItem('chiDoanThu', JSON.stringify(thuList));
+            resetFormThu();
+            renderAll();
+        }
+
+        function resetFormThu() {
+            document.getElementById('thuNgayGio').value = getCurrentDateTimeLocal();
+            document.getElementById('thuSoTien').value = '';
+            document.getElementById('thuNoiDung').value = '';
+        }
+
+        function editThu(index) {
+            const item = thuList[index];
+            document.getElementById('thuNgayGio').value = item.ngaygio;
+            document.getElementById('thuSoTien').value = item.sotien;
+            document.getElementById('thuNoiDung').value = item.noidung;
+            document.getElementById('editThuIndex').value = index;
+            document.getElementById('btnSaveThu').innerText = "Cập Nhật Khoản Thu";
+            switchTab('thu');
+        }
+
+        function deleteThu(index) {
+            if (confirm('Bạn có chắc muốn xóa khoản thu này?')) {
+                thuList.splice(index, 1);
+                localStorage.setItem('chiDoanThu', JSON.stringify(thuList));
+                renderAll();
+            }
+        }
+
+        // --- QUẢN LÝ CHI ---
+        function saveChi() {
+            const ngaygio = document.getElementById('chiNgayGio').value;
+            const nguoi = document.getElementById('chiNguoi').value.trim();
+            const sotien = parseFloat(document.getElementById('chiSoTien').value);
+            const noidung = document.getElementById('chiNoiDung').value.trim();
+            const editIndex = parseInt(document.getElementById('editChiIndex').value);
+
+            if (!ngaygio || !nguoi || !sotien || !noidung) {
+                alert('Vui lòng điền đầy đủ thông tin chi!');
+                return;
+            }
+
+            const item = { ngaygio, nguoi, sotien, noidung };
+
+            if (editIndex === -1) {
+                chiList.push(item);
+            } else {
+                chiList[editIndex] = item;
+                document.getElementById('editChiIndex').value = -1;
+                document.getElementById('btnSaveChi').innerText = "Lưu Khoản Chi";
+            }
+
+            localStorage.setItem('chiDoanChi', JSON.stringify(chiList));
+            resetFormChi();
+            renderAll();
+        }
+
+        function resetFormChi() {
+            document.getElementById('chiNgayGio').value = getCurrentDateTimeLocal();
+            document.getElementById('chiNguoi').value = '';
+            document.getElementById('chiSoTien').value = '';
+            document.getElementById('chiNoiDung').value = '';
+        }
+
+        function editChi(index) {
+            const item = chiList[index];
+            document.getElementById('chiNgayGio').value = item.ngaygio;
+            document.getElementById('chiNguoi').value = item.nguoi;
+            document.getElementById('chiSoTien').value = item.sotien;
+            document.getElementById('chiNoiDung').value = item.noidung;
+            document.getElementById('editChiIndex').value = index;
+            document.getElementById('btnSaveChi').innerText = "Cập Nhật Khoản Chi";
+            switchTab('chi');
+        }
+
+        function deleteChi(index) {
+            if (confirm('Bạn có chắc muốn xóa khoản chi này?')) {
+                chiList.splice(index, 1);
+                localStorage.setItem('chiDoanChi', JSON.stringify(chiList));
+                renderAll();
+            }
+        }
+
+        // --- RENDER GIAO DIỆN & TÍNH TOÁN ---
+        function renderAll() {
+            // Render Thu list
+            const containerThu = document.getElementById('listThuContainer');
+            document.getElementById('countThu').innerText = `${thuList.length} mục`;
+            if (thuList.length === 0) {
+                containerThu.innerHTML = `<p class="text-center text-slate-400 text-xs py-3">Chưa có dữ liệu thu</p>`;
+            } else {
+                containerThu.innerHTML = thuList.map((item, index) => `
+                    <div class="bg-blue-50/50 border border-blue-100 p-2.5 rounded-xl flex justify-between items-center text-xs">
+                        <div class="space-y-0.5 pr-2">
+                            <p class="font-bold text-blue-900">${item.noidung}</p>
+                            <p class="text-[10px] text-slate-500"><i class="fa-regular fa-clock"></i> ${formatDateTime(item.ngaygio)} | Thu bởi: <span class="font-semibold text-slate-700">${item.nguoi}</span></p>
+                            <p class="font-extrabold text-blue-700 text-sm">+${formatMoney(item.sotien)}</p>
+                        </div>
+                        <div class="flex space-x-1 flex-shrink-0">
+                            <button onclick="editThu(${index})" class="bg-blue-200 hover:bg-blue-300 text-blue-800 p-1.5 rounded-lg"><i class="fa-solid fa-pen text-[10px]"></i></button>
+                            <button onclick="deleteThu(${index})" class="bg-rose-200 hover:bg-rose-300 text-rose-800 p-1.5 rounded-lg"><i class="fa-solid fa-trash text-[10px]"></i></button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Render Chi list
+            const containerChi = document.getElementById('listChiContainer');
+            document.getElementById('countChi').innerText = `${chiList.length} mục`;
+            if (chiList.length === 0) {
+                containerChi.innerHTML = `<p class="text-center text-slate-400 text-xs py-3">Chưa có dữ liệu chi</p>`;
+            } else {
+                containerChi.innerHTML = chiList.map((item, index) => `
+                    <div class="bg-orange-50/50 border border-orange-100 p-2.5 rounded-xl flex justify-between items-center text-xs">
+                        <div class="space-y-0.5 pr-2">
+                            <p class="font-bold text-orange-900">${item.noidung}</p>
+                            <p class="text-[10px] text-slate-500"><i class="fa-regular fa-clock"></i> ${formatDateTime(item.ngaygio)} | Chi bởi: <span class="font-semibold text-slate-700">${item.nguoi}</span></p>
+                            <p class="font-extrabold text-orange-600 text-sm">-${formatMoney(item.sotien)}</p>
+                        </div>
+                        <div class="flex space-x-1 flex-shrink-0">
+                            <button onclick="editChi(${index})" class="bg-orange-200 hover:bg-orange-300 text-orange-800 p-1.5 rounded-lg"><i class="fa-solid fa-pen text-[10px]"></i></button>
+                            <button onclick="deleteChi(${index})" class="bg-rose-200 hover:bg-rose-300 text-rose-800 p-1.5 rounded-lg"><i class="fa-solid fa-trash text-[10px]"></i></button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+
+            // Tính tổng & cân đối
+            const totalThu = thuList.reduce((sum, item) => sum + item.sotien, 0);
+            const totalChi = chiList.reduce((sum, item) => sum + item.sotien, 0);
+            const balance = totalThu - totalChi;
+
+            document.getElementById('lblTotalThu').innerText = formatMoney(totalThu);
+            document.getElementById('lblTotalChi').innerText = formatMoney(totalChi);
+            
+            const lblBalance = document.getElementById('lblBalance');
+            lblBalance.innerText = formatMoney(balance);
+            if (balance < 0) {
+                lblBalance.className = "text-sm font-extrabold text-rose-600 mt-0.5";
+            } else {
+                lblBalance.className = "text-sm font-extrabold text-emerald-700 mt-0.5";
+            }
+        }
+
+        // --- XUẤT PDF ---
+        function exportPDF() {
+            // Cập nhật ngày tháng năm hiện tại vào form chuẩn
+            const today = new Date();
+            document.getElementById('pdfCurrentDate').innerText = `Buôn Hai - Đắk, ngày ${today.getDate()} tháng ${today.getMonth() + 1} năm ${today.getFullYear()}`;
+
+            // Đổ dữ liệu vào bảng PDF Thu
+            const pdfTableThu = document.getElementById('pdfTableThu');
+            if (thuList.length === 0) {
+                pdfTableThu.innerHTML = `<tr><td colspan="5" class="border border-slate-400 p-2 text-center italic">Không có dữ liệu thu</td></tr>`;
+            } else {
+                pdfTableThu.innerHTML = thuList.map((item, idx) => `
+                    <tr>
+                        <td class="border border-slate-400 p-1.5 text-center">${idx + 1}</td>
+                        <td class="border border-slate-400 p-1.5">${formatDateTime(item.ngaygio)}</td>
+                        <td class="border border-slate-400 p-1.5">${item.noidung}</td>
+                        <td class="border border-slate-400 p-1.5">${item.nguoi}</td>
+                        <td class="border border-slate-400 p-1.5 text-right font-semibold">${formatMoney(item.sotien)}</td>
+                    </tr>
+                `).join('');
+            }
+
+            // Đổ dữ liệu vào bảng PDF Chi
+            const pdfTableChi = document.getElementById('pdfTableChi');
+            if (chiList.length === 0) {
+                pdfTableChi.innerHTML = `<tr><td colspan="5" class="border border-slate-400 p-2 text-center italic">Không có dữ liệu chi</td></tr>`;
+            } else {
+                pdfTableChi.innerHTML = chiList.map((item, idx) => `
+                    <tr>
+                        <td class="border border-slate-400 p-1.5 text-center">${idx + 1}</td>
+                        <td class="border border-slate-400 p-1.5">${formatDateTime(item.ngaygio)}</td>
+                        <td class="border border-slate-400 p-1.5">${item.noidung}</td>
+                        <td class="border border-slate-400 p-1.5">${item.nguoi}</td>
+                        <td class="border border-slate-400 p-1.5 text-right font-semibold">${formatMoney(item.sotien)}</td>
+                    </tr>
+                `).join('');
+            }
+
+            // Tổng kết
+            const totalThu = thuList.reduce((sum, item) => sum + item.sotien, 0);
+            const totalChi = chiList.reduce((sum, item) => sum + item.sotien, 0);
+            const balance = totalThu - totalChi;
+
+            document.getElementById('pdfSumThu').innerText = formatMoney(totalThu);
+            document.getElementById('pdfSumChi').innerText = formatMoney(totalChi);
+            document.getElementById('pdfSumBalance').innerText = formatMoney(balance);
+
+            // Hiện mẫu template ẩn đi để thư viện html2pdf chụp lại, sau đó ẩn lại
+            const element = document.getElementById('pdfTemplate');
+            element.classList.remove('hidden');
+
+            const opt = {
+                margin:       5,
+                filename:     'BaoCaoThuChi_He2026_BongDaNhiDong.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            html2pdf().from(element).set(opt).save().then(() => {
+                element.classList.add('hidden');
+            });
+        }
+
+        // Khởi chạy khi tải trang
+        renderAll();
+    </script>
+</body>
+</html>

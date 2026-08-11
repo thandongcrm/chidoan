@@ -36,7 +36,7 @@
         }
         .readonly-hidden { display: none !important; }
         
-        /* Form văn bản hành chính chuẩn A4 - Tối ưu sát lề trên/trái */
+        /* Form văn bản hành chính chuẩn A4 - Tối ưu sát lề trên/trái đầy đủ 5 cột */
         #pdfTemplate {
             width: 210mm;
             margin: 0 auto;
@@ -44,7 +44,7 @@
             background: white;
             color: #000000;
             font-family: 'Times New Roman', Times, serif, sans-serif;
-            font-size: 9.5px;
+            font-size: 9px;
         }
         #pdfTemplate table {
             width: 100%;
@@ -369,7 +369,7 @@
         </div>
     </div>
 
-    <!-- FORM MẪU BÁO CÁO CHUẨN VĂN THƯ HÀNH CHÍNH (SÁT LỀ, ĐỦ TRANG) -->
+    <!-- FORM MẪU BÁO CÁO CHUẨN VĂN THƯ HÀNH CHÍNH (ĐẦY ĐỦ 5 CỘT) -->
     <div id="pdfTemplate" class="hidden">
         <!-- QUỐC HIỆU TIÊU NGỮ -->
         <table style="border: none !important; margin-bottom: 6px;">
@@ -409,34 +409,34 @@
             </div>
         </div>
 
-        <!-- PHẦN I: THU KINH PHÍ -->
+        <!-- PHẦN I: THU KINH PHÍ (ĐẦY ĐỦ 5 CỘT) -->
         <div style="margin-bottom: 5px;">
             <p style="font-weight: bold; font-size: 9px; text-transform: uppercase; margin: 0 0 2px 0; color: #0369a1;">I. PHẦN THU KINH PHÍ</p>
             <table>
                 <thead>
                     <tr style="background-color: #f1f5f9; text-align: center; font-weight: bold; font-size: 8.5px;">
                         <th style="width: 6%;">STT</th>
-                        <th style="width: 22%;">Thời gian</th>
-                        <th style="width: 42%;">Nội dung thu</th>
+                        <th style="width: 20%;">Thời gian</th>
+                        <th style="width: 38%;">Nội dung thu</th>
                         <th style="width: 18%; text-align: right;">Số tiền (VNĐ)</th>
-                        <th style="width: 12%;">Người thu</th>
+                        <th style="width: 18%;">Người thu</th>
                     </tr>
                 </thead>
                 <tbody id="pdfTableThu" style="font-size: 8.5px;"></tbody>
             </table>
         </div>
 
-        <!-- PHẦN II: CHI KINH PHÍ -->
+        <!-- PHẦN II: CHI KINH PHÍ (ĐẦY ĐỦ 5 CỘT) -->
         <div style="margin-bottom: 5px;">
             <p style="font-weight: bold; font-size: 9px; text-transform: uppercase; margin: 0 0 2px 0; color: #c2410c;">II. PHẦN CHI KINH PHÍ</p>
             <table>
                 <thead>
                     <tr style="background-color: #f1f5f9; text-align: center; font-weight: bold; font-size: 8.5px;">
                         <th style="width: 6%;">STT</th>
-                        <th style="width: 22%;">Thời gian</th>
-                        <th style="width: 42%;">Nội dung chi</th>
+                        <th style="width: 20%;">Thời gian</th>
+                        <th style="width: 38%;">Nội dung chi</th>
                         <th style="width: 18%; text-align: right;">Số tiền (VNĐ)</th>
-                        <th style="width: 12%;">Người chi</th>
+                        <th style="width: 18%;">Người chi</th>
                     </tr>
                 </thead>
                 <tbody id="pdfTableChi" style="font-size: 8.5px;"></tbody>

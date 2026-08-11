@@ -38,16 +38,18 @@
         }
         .readonly-hidden { display: none !important; }
         
-        /* Form văn bản hành chính chuẩn A4 - Tự động ngắt trang thông minh khi nội dung dài */
+        /* Form văn bản hành chính chuẩn A4 - Cân đối lề trái phải, loại bỏ khoảng trắng thừa bên phải */
         #pdfTemplate {
             width: 210mm;
+            min-height: 297mm;
             margin: 0 auto;
-            padding: 10mm 12mm 10mm 10mm;
+            padding: 12mm 15mm 12mm 15mm; /* Cân đối lề trái và phải đều nhau 15mm */
             background: white;
             color: #000000;
             font-family: 'Times New Roman', Times, serif, sans-serif;
-            font-size: 10px;
-            line-height: 1.35;
+            font-size: 11px;
+            line-height: 1.4;
+            box-sizing: border-box;
         }
         #pdfTemplate table {
             width: 100%;
@@ -67,7 +69,7 @@
         #pdfTemplate td, #pdfTemplate th {
             word-wrap: break-word;
             overflow: hidden;
-            padding: 3px 4px !important;
+            padding: 5px 6px !important;
             border: 1px solid #333333 !important;
         }
     </style>
@@ -158,10 +160,9 @@
                         <i class="fa-solid fa-file-invoice-dollar text-sm"></i>
                         <span>BÁO CÁO TỔNG HỢP TOÀN CHI ĐOÀN (THEO KHOẢNG NGÀY)</span>
                     </button>
-                    <!-- Nút Tải Về Nhanh Tại Trang Chủ -->
                     <button onclick="openGlobalDownloadModal()" class="w-full bg-gradient-to-r from-youthBlue to-cyan-600 hover:from-blue-600 hover:to-cyan-700 text-white font-bold text-xs py-3 rounded-2xl shadow-md flex items-center justify-center space-x-2 transition-all">
                         <i class="fa-solid fa-cloud-arrow-down text-sm"></i>
-                        <span>TẢI VỀ FILE PDF BÁO CÁO NHANH</span>
+                        <span>XEM & TẢI PDF BÁO CÁO NHANH</span>
                     </button>
                 </div>
 
@@ -324,9 +325,9 @@
 
                 <!-- Nút Xuất Báo Cáo PDF & Excel -->
                 <div class="space-y-2">
-                    <button onclick="exportPDF()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs py-3.5 rounded-2xl shadow-md flex items-center justify-center space-x-2 transition-all">
-                        <i class="fa-solid fa-file-pdf text-sm"></i>
-                        <span>TẢI BÁO CÁO THU CHI HOẠT ĐỘNG (PDF TRÌNH KÍ)</span>
+                    <button onclick="previewPDF()" class="w-full bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs py-3.5 rounded-2xl shadow-md flex items-center justify-center space-x-2 transition-all">
+                        <i class="fa-solid fa-eye text-sm"></i>
+                        <span>XEM TRƯỚC & TẢI BÁO CÁO PDF</span>
                     </button>
                     <button onclick="exportExcel()" class="w-full bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-bold text-xs py-3.5 rounded-2xl shadow-md flex items-center justify-center space-x-2 transition-all">
                         <i class="fa-solid fa-file-excel text-sm"></i>
@@ -343,6 +344,35 @@
         </footer>
     </div>
 
+    <!-- MODAL XEM TRƯỚC PDF (PREVIEW & DOWNLOAD) -->
+    <div id="pdfPreviewModal" class="fixed inset-0 bg-black/80 z-50 flex flex-col items-center justify-start p-2 md:p-6 hidden overflow-y-auto">
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-4 space-y-4 shadow-2xl my-auto">
+            <div class="flex justify-between items-center border-b pb-3">
+                <h3 class="font-black text-youthBlue text-xs uppercase flex items-center">
+                    <i class="fa-solid fa-file-pdf mr-1.5 text-sm"></i> Xem Trước Báo Cáo Trước Khi Tải Về
+                </h3>
+                <button onclick="closePDFPreviewModal()" class="text-slate-400 hover:text-slate-600 text-sm px-2 py-1 bg-slate-100 rounded-lg">
+                    <i class="fa-solid fa-xmark"></i> Đóng
+                </button>
+            </div>
+            
+            <!-- Khu vực cuộn hiển thị bản xem trước A4 -->
+            <div class="bg-slate-200 p-2 md:p-4 rounded-xl max-h-[65vh] overflow-y-auto border border-slate-300 flex justify-center">
+                <div id="previewContainerWrapper" style="transform: scale(0.85); transform-origin: top center; margin-bottom: -50px;">
+                    <!-- Nội dung PDF template sẽ được clone vào đây để xem trước -->
+                </div>
+            </div>
+
+            <div class="flex space-x-3 pt-2">
+                <button onclick="closePDFPreviewModal()" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs py-3 rounded-xl transition-all">Quay lại chỉnh sửa</button>
+                <button onclick="confirmDownloadPDF()" class="flex-1 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-bold text-xs py-3 rounded-xl shadow-md transition-all flex items-center justify-center space-x-1.5">
+                    <i class="fa-solid fa-download"></i>
+                    <span>Xác Nhận Tải Về PDF</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL BÁO CÁO TỔNG HỢP -->
     <div id="globalReportModal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-3 hidden">
         <div class="bg-white rounded-2xl max-w-sm w-full p-4 space-y-3 shadow-xl">
@@ -357,7 +387,7 @@
             </div>
             <div class="flex space-x-2 pt-2">
                 <button onclick="closeGlobalReportModal()" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs py-2.5 rounded-xl">Đóng</button>
-                <button onclick="exportGlobalPDF()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2.5 rounded-xl">Xem & Tải PDF</button>
+                <button onclick="previewGlobalPDF()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs py-2.5 rounded-xl">Xem & Tải PDF</button>
             </div>
         </div>
     </div>
@@ -365,7 +395,7 @@
     <!-- MODAL TẢI VỀ NHANH THEO KHOẢNG NGÀY -->
     <div id="globalDownloadModal" class="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-3 hidden">
         <div class="bg-white rounded-2xl max-w-sm w-full p-4 space-y-3 shadow-xl">
-            <h3 class="font-extrabold text-youthBlue text-xs uppercase border-b pb-2"><i class="fa-solid fa-cloud-arrow-down mr-1"></i> Tải về file PDF báo cáo nhanh</h3>
+            <h3 class="font-extrabold text-youthBlue text-xs uppercase border-b pb-2"><i class="fa-solid fa-cloud-arrow-down mr-1"></i> Xem trước & Tải PDF báo cáo nhanh</h3>
             <div>
                 <label class="block text-[11px] font-bold text-slate-600 mb-1">Từ ngày</label>
                 <input type="date" id="downloadFromDate" class="w-full text-xs p-2.5 rounded-xl border border-slate-300">
@@ -376,114 +406,114 @@
             </div>
             <div class="flex space-x-2 pt-2">
                 <button onclick="closeGlobalDownloadModal()" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-xs py-2.5 rounded-xl">Đóng</button>
-                <button onclick="executeGlobalDownload()" class="flex-1 bg-youthBlue hover:bg-sky-600 text-white font-bold text-xs py-2.5 rounded-xl">Tải Về Ngay</button>
+                <button onclick="executeGlobalPreview()" class="flex-1 bg-youthBlue hover:bg-sky-600 text-white font-bold text-xs py-2.5 rounded-xl">Xem Bản In PDF</button>
             </div>
         </div>
     </div>
 
-    <!-- FORM MẪU BÁO CÁO CHUẨN TRANG, TỰ ĐỘNG NGẮT TRANG NẾU DÀI, SÁT LỀ TRÁI -->
+    <!-- FORM MẪU BÁO CÁO CHUẨN TRANG, TỰ ĐỘNG NGẮT TRANG NẾU DÀI, CÂN ĐỐI 2 BÊN -->
     <div id="pdfTemplate" class="hidden">
         <!-- QUỐC HIỆU TIÊU NGỮ -->
-        <table style="border: none !important; margin-bottom: 10px;">
+        <table style="border: none !important; margin-bottom: 10px; width: 100%;">
             <tr style="border: none !important;">
                 <td style="border: none !important; text-align: center; width: 45%; vertical-align: top;">
-                    <p style="font-weight: bold; font-size: 9px; margin: 0; text-transform: uppercase; color: #0284c7;">ĐOÀN TNCS HỒ CHÍ MINH</p>
-                    <p style="font-weight: bold; font-size: 9px; margin: 1px 0; color: #0f172a;">ĐOÀN XÃ CƯ M'TA</p>
-                    <p style="font-weight: bold; font-size: 9px; margin: 0; text-decoration: underline; text-transform: uppercase; color: #0284c7;">CHI ĐOÀN BUÔN HAI - ĐẮK</p>
+                    <p style="font-weight: bold; font-size: 10px; margin: 0; text-transform: uppercase; color: #0284c7;">ĐOÀN TNCS HỒ CHÍ MINH</p>
+                    <p style="font-weight: bold; font-size: 10px; margin: 1px 0; color: #0f172a;">ĐOÀN XÃ CƯ M'TA</p>
+                    <p style="font-weight: bold; font-size: 10px; margin: 0; text-decoration: underline; text-transform: uppercase; color: #0284c7;">CHI ĐOÀN BUÔN HAI - ĐẮK</p>
                 </td>
                 <td style="border: none !important; text-align: center; width: 55%; vertical-align: top;">
-                    <p style="font-weight: bold; font-size: 9px; margin: 0; text-transform: uppercase; color: #334155;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</p>
-                    <p style="font-weight: bold; font-size: 9.5px; margin: 1px 0; text-decoration: underline; color: #0f172a;">Độc lập - Tự do - Hạnh phúc</p>
+                    <p style="font-weight: bold; font-size: 10px; margin: 0; text-transform: uppercase; color: #334155;">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM</p>
+                    <p style="font-weight: bold; font-size: 10.5px; margin: 1px 0; text-decoration: underline; color: #0f172a;">Độc lập - Tự do - Hạnh phúc</p>
                 </td>
             </tr>
         </table>
 
-        <!-- NGÀY THÁNG ĐỊA PHƯƠNG -->
-        <div style="text-align: right; font-style: italic; font-size: 9.5px; margin-bottom: 8px; color: #475569;">
+        <!-- NGÀY THÁNG ĐỊA PHƯƠNG - CÂN ĐỐI VÀO PHÍA TRONG THAY VÌ BỊ LỆCH SANG PHẢI -->
+        <div style="text-align: right; font-style: italic; font-size: 10px; margin-bottom: 10px; padding-right: 15px; color: #475569;">
             <span id="pdfCurrentDate">Buôn Hai - Đắk, ngày ... tháng ... năm 2026</span>
         </div>
 
         <!-- TIÊU ĐỀ BÁO CÁO -->
-        <div style="text-align: center; margin-bottom: 10px;">
-            <h2 id="pdfMainTitle" style="font-weight: bold; font-size: 11.5px; text-transform: uppercase; margin: 0 0 2px 0; color: #0284c7;">BÁO CÁO THU CHI TÀI CHÍNH</h2>
-            <h3 id="pdfSubTitle" style="font-weight: bold; font-size: 10px; text-transform: uppercase; margin: 0; color: #ea580c;">Nội dung...</h3>
+        <div style="text-align: center; margin-bottom: 12px;">
+            <h2 id="pdfMainTitle" style="font-weight: bold; font-size: 12px; text-transform: uppercase; margin: 0 0 2px 0; color: #0284c7;">BÁO CÁO THU CHI TÀI CHÍNH</h2>
+            <h3 id="pdfSubTitle" style="font-weight: bold; font-size: 11px; text-transform: uppercase; margin: 0; color: #ea580c;">Nội dung...</h3>
         </div>
 
         <!-- KÍNH GỬI & CĂN CỨ -->
-        <div style="margin-bottom: 10px; font-size: 9.5px; line-height: 1.3;">
-            <div style="margin-bottom: 3px;">
+        <div style="margin-bottom: 12px; font-size: 10px; line-height: 1.4;">
+            <div style="margin-bottom: 4px;">
                 <span style="font-weight: bold; color: #0f172a;">Kính gửi:</span>
                 <span id="pdfKingGuiText" style="font-weight: bold; color: #0284c7; border-bottom: 1px dashed #0284c7; display: inline-block; width: 85%;">Ban Tự quản Buôn Hai - Đắk</span>
             </div>
             <div>
                 <span style="font-weight: bold; color: #0f172a;">Căn cứ:</span>
-                <span id="pdfCanCuText" style="display: block; background: #f8fafc; border: 1px solid #cbd5e1; padding: 3px 5px; font-size: 9px; color: #334155; margin-top: 2px; border-radius: 3px;">Căn cứ kế hoạch tổ chức các hoạt động phong trào thanh thiếu nhi và thực tế công tác tài chính của Chi đoàn Buôn Hai - Đắk.</span>
+                <span id="pdfCanCuText" style="display: block; background: #f8fafc; border: 1px solid #cbd5e1; padding: 4px 6px; font-size: 9.5px; color: #334155; margin-top: 2px; border-radius: 3px;">Căn cứ kế hoạch tổ chức các hoạt động phong trào thanh thiếu nhi và thực tế công tác tài chính của Chi đoàn Buôn Hai - Đắk.</span>
             </div>
         </div>
 
         <!-- PHẦN I: THU KINH PHÍ -->
-        <div style="margin-bottom: 8px;">
-            <p style="font-weight: bold; font-size: 9.5px; text-transform: uppercase; margin: 0 0 3px 0; color: #0284c7;"><i class="fa-solid fa-circle-plus" style="font-size: 8px;"></i> I. PHẦN THU KINH PHÍ</p>
+        <div style="margin-bottom: 10px;">
+            <p style="font-weight: bold; font-size: 10px; text-transform: uppercase; margin: 0 0 4px 0; color: #0284c7;"><i class="fa-solid fa-circle-plus" style="font-size: 9px;"></i> I. PHẦN THU KINH PHÍ</p>
             <table>
                 <thead>
-                    <tr style="background-color: #e0f2fe; text-align: center; font-weight: bold; font-size: 9px; color: #0369a1;">
+                    <tr style="background-color: #e0f2fe; text-align: center; font-weight: bold; font-size: 9.5px; color: #0369a1;">
                         <th style="width: 6%;">STT</th>
-                        <th style="width: 20%;">Thời gian</th>
-                        <th style="width: 38%;">Nội dung thu</th>
+                        <th style="width: 22%;">Thời gian</th>
+                        <th style="width: 36%;">Nội dung thu</th>
                         <th style="width: 18%; text-align: right;">Số tiền (VNĐ)</th>
                         <th style="width: 18%;">Người thu</th>
                     </tr>
                 </thead>
-                <tbody id="pdfTableThu" style="font-size: 9px;"></tbody>
+                <tbody id="pdfTableThu" style="font-size: 9.5px;"></tbody>
             </table>
         </div>
 
         <!-- PHẦN II: CHI KINH PHÍ -->
-        <div style="margin-bottom: 8px;">
-            <p style="font-weight: bold; font-size: 9.5px; text-transform: uppercase; margin: 0 0 3px 0; color: #ea580c;"><i class="fa-solid fa-circle-minus" style="font-size: 8px;"></i> II. PHẦN CHI KINH PHÍ</p>
+        <div style="margin-bottom: 10px;">
+            <p style="font-weight: bold; font-size: 10px; text-transform: uppercase; margin: 0 0 4px 0; color: #ea580c;"><i class="fa-solid fa-circle-minus" style="font-size: 9px;"></i> II. PHẦN CHI KINH PHÍ</p>
             <table>
                 <thead>
-                    <tr style="background-color: #ffedd5; text-align: center; font-weight: bold; font-size: 9px; color: #c2410c;">
+                    <tr style="background-color: #ffedd5; text-align: center; font-weight: bold; font-size: 9.5px; color: #c2410c;">
                         <th style="width: 6%;">STT</th>
-                        <th style="width: 20%;">Thời gian</th>
-                        <th style="width: 38%;">Nội dung chi</th>
+                        <th style="width: 22%;">Thời gian</th>
+                        <th style="width: 36%;">Nội dung chi</th>
                         <th style="width: 18%; text-align: right;">Số tiền (VNĐ)</th>
                         <th style="width: 18%;">Người chi</th>
                     </tr>
                 </thead>
-                <tbody id="pdfTableChi" style="font-size: 9px;"></tbody>
+                <tbody id="pdfTableChi" style="font-size: 9.5px;"></tbody>
             </table>
         </div>
 
         <!-- PHẦN III: TỔNG KẾT CÂN ĐỐI QUỸ -->
-        <div style="margin-bottom: 10px; border: 1px solid #0ea5e9; padding: 4px 8px; background-color: #f0fdf4; border-radius: 4px; page-break-inside: avoid;">
-            <p style="font-weight: bold; font-size: 9.5px; text-transform: uppercase; margin: 0 0 2px 0; color: #15803d;"><i class="fa-solid fa-chart-pie" style="font-size: 8px;"></i> III. TỔNG KẾT CÂN ĐỐI QUỸ</p>
-            <div style="display: flex; justify-content: space-between; font-size: 9px; padding: 1px 0; border-bottom: 1px dotted #cbd5e1;">
+        <div style="margin-bottom: 12px; border: 1px solid #0ea5e9; padding: 6px 10px; background-color: #f0fdf4; border-radius: 4px; page-break-inside: avoid;">
+            <p style="font-weight: bold; font-size: 10px; text-transform: uppercase; margin: 0 0 3px 0; color: #15803d;"><i class="fa-solid fa-chart-pie" style="font-size: 9px;"></i> III. TỔNG KẾT CÂN ĐỐI QUỸ</p>
+            <div style="display: flex; justify-content: space-between; font-size: 9.5px; padding: 2px 0; border-bottom: 1px dotted #cbd5e1;">
                 <span style="color: #334155;">- Tổng thu kinh phí:</span>
                 <span id="pdfSumThu" style="font-weight: bold; color: #0284c7;">0 đ</span>
             </div>
-            <div style="display: flex; justify-content: space-between; font-size: 9px; padding: 1px 0; border-bottom: 1px dotted #cbd5e1;">
+            <div style="display: flex; justify-content: space-between; font-size: 9.5px; padding: 2px 0; border-bottom: 1px dotted #cbd5e1;">
                 <span style="color: #334155;">- Tổng chi kinh phí:</span>
                 <span id="pdfSumChi" style="font-weight: bold; color: #ea580c;">0 đ</span>
             </div>
-            <div style="display: flex; justify-content: space-between; font-size: 9.5px; padding: 2px 0; font-weight: bold; color: #16a34a;">
+            <div style="display: flex; justify-content: space-between; font-size: 10px; padding: 3px 0; font-weight: bold; color: #16a34a;">
                 <span>- Số dư tồn quỹ thực tế (Thu - Chi):</span>
                 <span id="pdfSumBalance">0 đ</span>
             </div>
         </div>
 
         <!-- PHẦN CHỮ KÝ TRÌNH KÍ -->
-        <table style="border: none !important; margin-top: 10px; page-break-inside: avoid;">
+        <table style="border: none !important; margin-top: 15px; page-break-inside: avoid; width: 100%;">
             <tr style="border: none !important;">
                 <td style="border: none !important; text-align: center; width: 50%; vertical-align: top;">
-                    <p style="font-weight: bold; font-size: 9.5px; text-transform: uppercase; margin: 0; color: #0f172a;">BAN TỰ QUẢN BUÔN HAI - ĐẮK</p>
-                    <p style="font-style: italic; font-size: 8.5px; margin: 1px 0 25px 0; color: #64748b;">(Ký, ghi rõ họ tên)</p>
-                    <p style="font-weight: bold; font-size: 9.5px; margin: 0; text-transform: uppercase; visibility: hidden;">Chữ ký</p>
+                    <p style="font-weight: bold; font-size: 10px; text-transform: uppercase; margin: 0; color: #0f172a;">BAN TỰ QUẢN BUÔN HAI - ĐẮK</p>
+                    <p style="font-style: italic; font-size: 9px; margin: 1px 0 35px 0; color: #64748b;">(Ký, ghi rõ họ tên)</p>
+                    <p style="font-weight: bold; font-size: 10px; margin: 0; text-transform: uppercase; visibility: hidden;">Chữ ký</p>
                 </td>
                 <td style="border: none !important; text-align: center; width: 50%; vertical-align: top;">
-                    <p style="font-weight: bold; font-size: 9.5px; text-transform: uppercase; margin: 0; color: #0f172a;">BÍ THƯ CHI ĐOÀN</p>
-                    <p style="font-style: italic; font-size: 8.5px; margin: 1px 0 25px 0; color: #64748b;">(Ký, ghi rõ họ tên, đóng dấu nếu có)</p>
-                    <p style="font-weight: bold; font-size: 10px; margin: 0; text-transform: uppercase; color: #0284c7;">Trần Vũ Lực</p>
+                    <p style="font-weight: bold; font-size: 10px; text-transform: uppercase; margin: 0; color: #0f172a;">BÍ THƯ CHI ĐOÀN</p>
+                    <p style="font-style: italic; font-size: 9px; margin: 1px 0 35px 0; color: #64748b;">(Ký, ghi rõ họ tên, đóng dấu nếu có)</p>
+                    <p style="font-weight: bold; font-size: 10.5px; margin: 0; text-transform: uppercase; color: #0284c7;">Trần Vũ Lực</p>
                 </td>
             </tr>
         </table>
@@ -492,6 +522,7 @@
     <!-- SCRIPT XỬ LÝ -->
     <script>
         let currentUserRole = 'admin';
+        let currentPdfFilename = 'BaoCao.pdf';
 
         window.addEventListener('DOMContentLoaded', () => {
             const isLogged = localStorage.getItem('chiDoanLogged');
@@ -950,7 +981,8 @@
             lblBalance.className = balance < 0 ? "text-xs font-extrabold text-rose-600 mt-0.5" : "text-xs font-extrabold text-emerald-700 mt-0.5";
         }
 
-        function exportPDF() {
+        // HÀM XEM TRƯỚC VÀ XUẤT PDF
+        function previewPDF() {
             const act = activitiesData[currentActId];
             if (!act) return;
             const today = new Date();
@@ -960,7 +992,10 @@
 
             const thuList = Object.values(act.thu || {});
             const chiList = Object.values(act.chi || {});
-            buildPDFTablesAndSave(thuList, chiList, `BaoCao_${act.name.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
+            currentPdfFilename = `BaoCao_${act.name.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`;
+            
+            populatePDFData(thuList, chiList);
+            openPDFPreviewModal();
         }
 
         function openGlobalReportModal() { document.getElementById('globalReportModal').classList.remove('hidden'); }
@@ -969,7 +1004,7 @@
         function openGlobalDownloadModal() { document.getElementById('globalDownloadModal').classList.remove('hidden'); }
         function closeGlobalDownloadModal() { document.getElementById('globalDownloadModal').classList.add('hidden'); }
 
-        function executeGlobalDownload() {
+        function executeGlobalPreview() {
             const fromDate = document.getElementById('downloadFromDate').value;
             const toDate = document.getElementById('downloadToDate').value;
             if(!fromDate || !toDate) { alert('Vui lòng chọn đầy đủ từ ngày và đến ngày!'); return; }
@@ -997,11 +1032,13 @@
             document.getElementById('pdfMainTitle').innerText = "BÁO CÁO TỔNG HỢP THU CHI TOÀN CHI ĐOÀN";
             document.getElementById('pdfSubTitle').innerText = `Từ ngày ${fromDate} đến ngày ${toDate}`;
             
+            currentPdfFilename = `BaoCaoTongHop_${fromDate}_den_${toDate}.pdf`;
             closeGlobalDownloadModal();
-            buildPDFTablesAndSave(allThu, allChi, `BaoCaoTongHop_${fromDate}_den_${toDate}.pdf`);
+            populatePDFData(allThu, allChi);
+            openPDFPreviewModal();
         }
 
-        function exportGlobalPDF() {
+        function previewGlobalPDF() {
             const fromDate = document.getElementById('globalFromDate').value;
             const toDate = document.getElementById('globalToDate').value;
             if(!fromDate || !toDate) { alert('Vui lòng chọn đầy đủ từ ngày và đến ngày!'); return; }
@@ -1029,13 +1066,15 @@
             document.getElementById('pdfMainTitle').innerText = "BÁO CÁO TỔNG HỢP THU CHI TOÀN CHI ĐOÀN";
             document.getElementById('pdfSubTitle').innerText = `Từ ngày ${fromDate} đến ngày ${toDate}`;
             
+            currentPdfFilename = `BaoCaoTongHop_${fromDate}_den_${toDate}.pdf`;
             closeGlobalReportModal();
-            buildPDFTablesAndSave(allThu, allChi, `BaoCaoTongHop_${fromDate}_den_${toDate}.pdf`);
+            populatePDFData(allThu, allChi);
+            openPDFPreviewModal();
         }
 
-        function buildPDFTablesAndSave(thuList, chiList, filename) {
+        function populatePDFData(thuList, chiList) {
             const pdfTableThu = document.getElementById('pdfTableThu');
-            pdfTableThu.innerHTML = thuList.length === 0 ? `<tr><td colspan="5" style="text-align: center; font-style: italic; padding: 4px; color: #64748b;">Không có dữ liệu thu</td></tr>` : thuList.map((item, idx) => `
+            pdfTableThu.innerHTML = thuList.length === 0 ? `<tr><td colspan="5" style="text-align: center; font-style: italic; padding: 6px; color: #64748b;">Không có dữ liệu thu</td></tr>` : thuList.map((item, idx) => `
                 <tr>
                     <td style="text-align: center; font-weight: bold; color: #475569;">${idx + 1}</td>
                     <td style="color: #334155;">${formatDateTime(item.ngaygio)}</td>
@@ -1046,7 +1085,7 @@
             `).join('');
 
             const pdfTableChi = document.getElementById('pdfTableChi');
-            pdfTableChi.innerHTML = chiList.length === 0 ? `<tr><td colspan="5" style="text-align: center; font-style: italic; padding: 4px; color: #64748b;">Không có dữ liệu chi</td></tr>` : chiList.map((item, idx) => `
+            pdfTableChi.innerHTML = chiList.length === 0 ? `<tr><td colspan="5" style="text-align: center; font-style: italic; padding: 6px; color: #64748b;">Không có dữ liệu chi</td></tr>` : chiList.map((item, idx) => `
                 <tr>
                     <td style="text-align: center; font-weight: bold; color: #475569;">${idx + 1}</td>
                     <td style="color: #334155;">${formatDateTime(item.ngaygio)}</td>
@@ -1063,13 +1102,28 @@
             document.getElementById('pdfSumThu').innerText = formatMoney(totalThu);
             document.getElementById('pdfSumChi').innerText = formatMoney(totalChi);
             document.getElementById('pdfSumBalance').innerText = formatMoney(balance);
+        }
 
+        function openPDFPreviewModal() {
+            const templateHtml = document.getElementById('pdfTemplate').innerHTML;
+            const previewWrapper = document.getElementById('previewContainerWrapper');
+            
+            previewWrapper.innerHTML = `<div style="width: 210mm; background: white; padding: 12mm 15mm 12mm 15mm; font-family: 'Times New Roman', Times, serif; font-size: 11px; line-height: 1.4; color: #000; box-sizing: border-box; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">${templateHtml}</div>`;
+            document.getElementById('pdfPreviewModal').classList.remove('hidden');
+        }
+
+        function closePDFPreviewModal() {
+            document.getElementById('pdfPreviewModal').classList.add('hidden');
+        }
+
+        function confirmDownloadPDF() {
+            closePDFPreviewModal();
             const element = document.getElementById('pdfTemplate');
             element.classList.remove('hidden');
 
             const opt = {
                 margin:       [10, 10, 10, 10],
-                filename:     filename,
+                filename:     currentPdfFilename,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true, letterRendering: true, windowWidth: 794 },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
@@ -1080,7 +1134,7 @@
             });
         }
 
-        // HÀM XUẤT EXCEL CHUẨN XUẤT TRỰC TIẾP BẰNG SHEETJS (ĐÃ FIX LỖI ĐỊNH DẠNG TỆP TRÊN iOS VÀ ANDROID)
+        // HÀM XUẤT EXCEL CHUẨN XUẤT TRỰC TIẾP BẰNG SHEETJS
         function exportExcel() {
             const act = activitiesData[currentActId];
             if (!act) return;
@@ -1144,7 +1198,6 @@
 
             const ws = XLSX.utils.aoa_to_sheet(aoaData);
 
-            // Thiết lập font Times New Roman và cỡ chữ 15pt toàn bộ bảng tính
             const range = XLSX.utils.decode_range(ws['!ref']);
             for (let R = range.s.r; R <= range.e.r; ++R) {
                 for (let C = range.s.c; C <= range.e.c; ++C) {
@@ -1155,7 +1208,6 @@
                 }
             }
 
-            // Gộp ô (Merge cells) cho các tiêu đề lớn
             ws['!merges'] = [
                 { s: {r: 0, c: 0}, e: {r: 0, c: 2} },
                 { s: {r: 0, c: 4}, e: {r: 0, c: 4} },
@@ -1174,13 +1226,12 @@
                 { s: {r: 23, c: 4}, e: {r: 23, c: 4} }
             ];
 
-            // Định dạng chiều rộng cột tối ưu
             ws['!cols'] = [
-                {wch: 8},  // STT
-                {wch: 22}, // Thời gian
-                {wch: 35}, // Nội dung
-                {wch: 22}, // Số tiền
-                {wch: 25}  // Người thu/chi
+                {wch: 8},  
+                {wch: 22}, 
+                {wch: 35}, 
+                {wch: 22}, 
+                {wch: 25}  
             ];
 
             const wb = XLSX.utils.book_new();

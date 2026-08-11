@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -10,6 +11,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- html2pdf.js để xuất file PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <!-- SheetJS (xlsx) để xuất file Excel chuẩn trực tiếp -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     
     <!-- Firebase SDKs (Compat version) -->
     <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
@@ -1078,7 +1081,7 @@
             });
         }
 
-        // HÀM XUẤT EXCEL CHUẨN TIMES NEW ROMAN CỠ 15
+        // HÀM XUẤT EXCEL CHUẨN XLSX BẰNG THƯ VIỆN SHEETJS (KHÔNG BỊ LỖI ĐỊNH DẠNG)
         function exportExcel() {
             const act = activitiesData[currentActId];
             if (!act) return;
@@ -1087,85 +1090,39 @@
             const chiList = Object.values(act.chi || {});
             const today = new Date();
 
-            let html = `
-                <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-                <head>
-                    <meta charset="UTF-8">
-                    <style>
-                        body { font-family: 'Times New Roman', Times, serif; font-size: 15pt; }
-                        .header { font-weight: bold; text-align: center; }
-                        .title { font-weight: bold; font-size: 18pt; text-align: center; text-transform: uppercase; }
-                        .subtitle { font-weight: bold; font-size: 16pt; text-align: center; color: #b45309; text-transform: uppercase; }
-                        .section { font-weight: bold; font-size: 16pt; background-color: #f1f5f9; }
-                        th { font-weight: bold; background-color: #e2e8f0; text-align: center; border: 1px solid #000; font-size: 15pt; }
-                        td { border: 1px solid #000; font-size: 15pt; vertical-align: middle; }
-                        .num { text-align: right; }
-                        .center { text-align: center; }
-                    </style>
-                </head>
-                <body>
-                    <table>
-                        <tr>
-                            <td colspan="2" class="header">ĐOÀN TNCS HỒ CHÍ MINH<br>ĐOÀN XÃ CƯ M'TA<br><b>CHI ĐOÀN BUÔN HAI - ĐẮK</b></td>
-                            <td></td>
-                            <td colspan="2" class="header">CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM<br><u>Độc lập - Tự do - Hạnh phúc</u></td>
-                        </tr>
-                        <tr><td colspan="5" style="text-align: right; font-style: italic;">Buôn Hai - Đắk, ngày ${today.getDate()} tháng ${today.getMonth() + 1} năm ${today.getFullYear()}</td></tr>
-                        <tr><td colspan="5" class="title">BÁO CÁO THU CHI TÀI CHÍNH HOẠT ĐỘNG</td></tr>
-                        <tr><td colspan="5" class="subtitle">${act.name}</td></tr>
-                        <tr><td colspan="5"><b>Kính gửi:</b> Ban Tự quản Buôn Hai - Đắk</td></tr>
-                        <tr><td colspan="5"><b>Căn cứ:</b> Căn cứ kế hoạch tổ chức các hoạt động phong trào thanh thiếu nhi và thực tế công tác tài chính của Chi đoàn Buôn Hai - Đắk.</td></tr>
-                        
-                        <tr><td colspan="5" class="section">I. PHẦN THU KINH PHÍ</td></tr>
-                        <tr>
-                            <th>STT</th>
-                            <th>Thời gian</th>
-                            <th>Nội dung thu</th>
-                            <th>Số tiền (VNĐ)</th>
-                            <th>Người thu</th>
-                        </tr>
-            `;
+            let aoaData = [
+                ["ĐOÀN TNCS HỒ CHÍ MINH", "", "", "CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM"],
+                ["ĐOÀN XÃ CƯ M'TA", "", "", "Độc lập - Tự do - Hạnh phúc"],
+                ["CHI ĐOÀN BUÔN HAI - ĐẮK", "", "", ""],
+                ["", "", "", "", `Buôn Hai - Đắk, ngày ${today.getDate()} tháng ${today.getMonth() + 1} năm ${today.getFullYear()}`],
+                ["BÁO CÁO THU CHI TÀI CHÍNH HOẠT ĐỘNG", "", "", "", ""],
+                [act.name.toUpperCase(), "", "", "", ""],
+                ["Kính gửi:", "Ban Tự quản Buôn Hai - Đắk", "", "", ""],
+                ["Căn cứ:", "Căn cứ kế hoạch tổ chức các hoạt động phong trào thanh thiếu nhi và thực tế công tác tài chính của Chi đoàn Buôn Hai - Đắk.", "", "", ""],
+                [""],
+                ["I. PHẦN THU KINH PHÍ"],
+                ["STT", "Thời gian", "Nội dung thu", "Số tiền (VNĐ)", "Người thu"]
+            ];
 
             if (thuList.length === 0) {
-                html += `<tr><td colspan="5" style="text-align: center; font-style: italic;">Không có dữ liệu thu</td></tr>`;
+                aoaData.push(["Không có dữ liệu thu", "", "", "", ""]);
             } else {
                 thuList.forEach((item, idx) => {
-                    html += `
-                        <tr>
-                            <td class="center">${idx + 1}</td>
-                            <td>${formatDateTime(item.ngaygio)}</td>
-                            <td>${item.noidung}</td>
-                            <td class="num">${item.sotien}</td>
-                            <td>${item.nguoi}</td>
-                        </tr>
-                    `;
+                    aoaData.push([idx + 1, formatDateTime(item.ngaygio), item.noidung, item.sotien, item.nguoi]);
                 });
             }
 
-            html += `
-                        <tr><td colspan="5" class="section">II. PHẦN CHI KINH PHÍ</td></tr>
-                        <tr>
-                            <th>STT</th>
-                            <th>Thời gian</th>
-                            <th>Nội dung chi</th>
-                            <th>Số tiền (VNĐ)</th>
-                            <th>Người chi</th>
-                        </tr>
-            `;
+            aoaData.push(
+                [""],
+                ["II. PHẦN CHI KINH PHÍ"],
+                ["STT", "Thời gian", "Nội dung chi", "Số tiền (VNĐ)", "Người chi"]
+            );
 
             if (chiList.length === 0) {
-                html += `<tr><td colspan="5" style="text-align: center; font-style: italic;">Không có dữ liệu chi</td></tr>`;
+                aoaData.push(["Không có dữ liệu chi", "", "", "", ""]);
             } else {
                 chiList.forEach((item, idx) => {
-                    html += `
-                        <tr>
-                            <td class="center">${idx + 1}</td>
-                            <td>${formatDateTime(item.ngaygio)}</td>
-                            <td>${item.noidung}</td>
-                            <td class="num">${item.sotien}</td>
-                            <td>${item.nguoi}</td>
-                        </tr>
-                    `;
+                    aoaData.push([idx + 1, formatDateTime(item.ngaygio), item.noidung, item.sotien, item.nguoi]);
                 });
             }
 
@@ -1173,32 +1130,61 @@
             const totalChi = chiList.reduce((s, i) => s + i.sotien, 0);
             const balance = totalThu - totalChi;
 
-            html += `
-                        <tr><td colspan="5" class="section">III. TỔNG KẾT CÂN ĐỐI QUỸ</td></tr>
-                        <tr><td colspan="3">- Tổng thu kinh phí:</td><td colspan="2" class="num">${totalThu}</td></tr>
-                        <tr><td colspan="3">- Tổng chi kinh phí:</td><td colspan="2" class="num">${totalChi}</td></tr>
-                        <tr><td colspan="3"><b>- Số dư tồn quỹ thực tế (Thu - Chi):</b></td><td colspan="2" class="num"><b>${balance}</b></td></tr>
-                        
-                        <tr><td colspan="5">&nbsp;</td></tr>
-                        <tr>
-                            <td colspan="2" class="header"><b>BAN TỰ QUẢN BUÔN HAI - ĐẮK</b><br><i>(Ký, ghi rõ họ tên)</i></td>
-                            <td></td>
-                            <td colspan="2" class="header"><b>BÍ THƯ CHI ĐOÀN</b><br><i>(Ký, ghi rõ họ tên, đóng dấu nếu có)</i><br><br><br><b>Trần Vũ Lực</b></td>
-                        </tr>
-                    </table>
-                </body>
-                </html>
-            `;
+            aoaData.push(
+                [""],
+                ["III. TỔNG KẾT CÂN ĐỐI QUỸ"],
+                ["- Tổng thu kinh phí:", "", "", totalThu, ""],
+                ["- Tổng chi kinh phí:", "", "", totalChi, ""],
+                ["- Số dư tồn quỹ thực tế (Thu - Chi):", "", "", balance, ""],
+                [""],
+                ["BAN TỰ QUẢN BUÔN HAI - ĐẮK", "", "", "BÍ THƯ CHI ĐOÀN"],
+                ["(Ký, ghi rõ họ tên)", "", "", "(Ký, ghi rõ họ tên, đóng dấu nếu có)"],
+                ["", "", "", ""],
+                ["", "", "", "Trần Vũ Lực"]
+            );
 
-            const blob = new Blob(['\ufeff' + html], { type: 'application/vnd.ms-excel' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `BaoCao_${act.name.replace(/[^a-zA-Z0-9]/g, '_')}.xls`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
+            const ws = XLSX.utils.aoa_to_sheet(aoaData);
+
+            // Thiết lập font Times New Roman và cỡ chữ 15pt toàn bộ bảng tính
+            const range = XLSX.utils.decode_range(ws['!ref']);
+            for (let R = range.s.r; R <= range.e.r; ++R) {
+                for (let C = range.s.c; C <= range.e.c; ++C) {
+                    const cellRef = XLSX.utils.encode_cell({r: R, c: C});
+                    if (!ws[cellRef]) continue;
+                    if (!ws[cellRef].s) ws[cellRef].s = {};
+                    ws[cellRef].s.font = { name: "Times New Roman", sz: 15 };
+                }
+            }
+
+            // Gộp ô (Merge cells) cho các tiêu đề lớn
+            ws['!merges'] = [
+                { s: {r: 0, c: 0}, e: {r: 0, c: 1} },
+                { s: {r: 0, c: 3}, e: {r: 0, c: 4} },
+                { s: {r: 1, c: 0}, e: {r: 1, c: 1} },
+                { s: {r: 1, c: 3}, e: {r: 1, c: 4} },
+                { s: {r: 2, c: 0}, e: {r: 2, c: 1} },
+                { s: {r: 3, c: 3}, e: {r: 3, c: 4} },
+                { s: {r: 4, c: 0}, e: {r: 4, c: 4} },
+                { s: {r: 5, c: 0}, e: {r: 5, c: 4} },
+                { s: {r: 6, c: 1}, e: {r: 6, c: 4} },
+                { s: {r: 7, c: 1}, e: {r: 7, c: 4} }
+            ];
+
+            // Định dạng chiều rộng cột tối ưu
+            ws['!cols'] = [
+                {wch: 8},  // STT
+                {wch: 20}, // Thời gian
+                {wch: 35}, // Nội dung
+                {wch: 22}, // Số tiền
+                {wch: 22}  // Người thu/chi
+            ];
+
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "BaoCao");
+            XLSX.writeFile(wb, `BaoCao_${act.name.replace(/[^a-zA-Z0-9]/g, '_')}.xlsx`);
         }
     </script>
 </body>
 </html>
+
+```

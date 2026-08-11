@@ -1108,7 +1108,7 @@
             const templateHtml = document.getElementById('pdfTemplate').innerHTML;
             const previewWrapper = document.getElementById('previewContainerWrapper');
             
-            previewWrapper.innerHTML = `<div style="width: 210mm; background: white; padding: 12mm 15mm 12mm 15mm; font-family: 'Times New Roman', Times, serif; font-size: 11px; line-height: 1.4; color: #000; box-sizing: border-box; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">${templateHtml}</div>`;
+            previewWrapper.innerHTML = `<div style="width: 210mm; background: white; padding: 10mm 12mm 10mm 12mm; font-family: 'Times New Roman', Times, serif; font-size: 11px; line-height: 1.4; color: #000; box-sizing: border-box; box-shadow: 0 4px 12px rgba(0,0,0,0.15);">${templateHtml}</div>`;
             document.getElementById('pdfPreviewModal').classList.remove('hidden');
         }
 
@@ -1116,16 +1116,16 @@
             document.getElementById('pdfPreviewModal').classList.add('hidden');
         }
 
-        function confirmDownloadPDF() {
+       function confirmDownloadPDF() {
             closePDFPreviewModal();
             const element = document.getElementById('pdfTemplate');
             element.classList.remove('hidden');
 
             const opt = {
-                margin:       [10, 10, 10, 10],
+                margin:       [5, 8, 5, 8],
                 filename:     currentPdfFilename,
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, letterRendering: true, windowWidth: 794 },
+                html2canvas:  { scale: 2, useCORS: true, letterRendering: true, scrollX: 0, scrollY: 0 },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 

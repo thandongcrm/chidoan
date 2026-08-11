@@ -1,4 +1,3 @@
-```html
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -11,7 +10,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- html2pdf.js để xuất file PDF -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <!-- SheetJS (xlsx) để xuất file Excel chuẩn trực tiếp -->
+    <!-- SheetJS (xlsx) để xuất file Excel chuẩn trực tiếp không bị lỗi định dạng -->
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     
     <!-- Firebase SDKs (Compat version) -->
@@ -1081,7 +1080,7 @@
             });
         }
 
-        // HÀM XUẤT EXCEL CHUẨN XLSX BẰNG THƯ VIỆN SHEETJS (KHÔNG BỊ LỖI ĐỊNH DẠNG)
+        // HÀM XUẤT EXCEL CHUẨN XUẤT TRỰC TIẾP BẰNG SHEETJS (ĐÃ FIX LỖI ĐỊNH DẠNG TỆP TRÊN iOS VÀ ANDROID)
         function exportExcel() {
             const act = activitiesData[currentActId];
             if (!act) return;
@@ -1091,9 +1090,9 @@
             const today = new Date();
 
             let aoaData = [
-                ["ĐOÀN TNCS HỒ CHÍ MINH", "", "", "CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM"],
-                ["ĐOÀN XÃ CƯ M'TA", "", "", "Độc lập - Tự do - Hạnh phúc"],
-                ["CHI ĐOÀN BUÔN HAI - ĐẮK", "", "", ""],
+                ["ĐOÀN TNCS HỒ CHÍ MINH", "", "", "", "CỘNG HÒA XÃ HỘI CHỦ NGHĨA VIỆT NAM"],
+                ["ĐOÀN XÃ CƯ M'TA", "", "", "", "Độc lập - Tự do - Hạnh phúc"],
+                ["CHI ĐOÀN BUÔN HAI - ĐẮK", "", "", "", ""],
                 ["", "", "", "", `Buôn Hai - Đắk, ngày ${today.getDate()} tháng ${today.getMonth() + 1} năm ${today.getFullYear()}`],
                 ["BÁO CÁO THU CHI TÀI CHÍNH HOẠT ĐỘNG", "", "", "", ""],
                 [act.name.toUpperCase(), "", "", "", ""],
@@ -1137,10 +1136,10 @@
                 ["- Tổng chi kinh phí:", "", "", totalChi, ""],
                 ["- Số dư tồn quỹ thực tế (Thu - Chi):", "", "", balance, ""],
                 [""],
-                ["BAN TỰ QUẢN BUÔN HAI - ĐẮK", "", "", "BÍ THƯ CHI ĐOÀN"],
-                ["(Ký, ghi rõ họ tên)", "", "", "(Ký, ghi rõ họ tên, đóng dấu nếu có)"],
-                ["", "", "", ""],
-                ["", "", "", "Trần Vũ Lực"]
+                ["BAN TỰ QUẢN BUÔN HAI - ĐẮK", "", "", "", "BÍ THƯ CHI ĐOÀN"],
+                ["(Ký, ghi rõ họ tên)", "", "", "", "(Ký, ghi rõ họ tên, đóng dấu nếu có)"],
+                ["", "", "", "", ""],
+                ["", "", "", "", "Trần Vũ Lực"]
             );
 
             const ws = XLSX.utils.aoa_to_sheet(aoaData);
@@ -1158,25 +1157,30 @@
 
             // Gộp ô (Merge cells) cho các tiêu đề lớn
             ws['!merges'] = [
-                { s: {r: 0, c: 0}, e: {r: 0, c: 1} },
-                { s: {r: 0, c: 3}, e: {r: 0, c: 4} },
-                { s: {r: 1, c: 0}, e: {r: 1, c: 1} },
-                { s: {r: 1, c: 3}, e: {r: 1, c: 4} },
-                { s: {r: 2, c: 0}, e: {r: 2, c: 1} },
-                { s: {r: 3, c: 3}, e: {r: 3, c: 4} },
+                { s: {r: 0, c: 0}, e: {r: 0, c: 2} },
+                { s: {r: 0, c: 4}, e: {r: 0, c: 4} },
+                { s: {r: 1, c: 0}, e: {r: 1, c: 2} },
+                { s: {r: 1, c: 4}, e: {r: 1, c: 4} },
+                { s: {r: 2, c: 0}, e: {r: 2, c: 2} },
+                { s: {r: 3, c: 4}, e: {r: 3, c: 4} },
                 { s: {r: 4, c: 0}, e: {r: 4, c: 4} },
                 { s: {r: 5, c: 0}, e: {r: 5, c: 4} },
                 { s: {r: 6, c: 1}, e: {r: 6, c: 4} },
-                { s: {r: 7, c: 1}, e: {r: 7, c: 4} }
+                { s: {r: 7, c: 1}, e: {r: 7, c: 4} },
+                { s: {r: 20, c: 0}, e: {r: 20, c: 1} },
+                { s: {r: 20, c: 4}, e: {r: 20, c: 4} },
+                { s: {r: 21, c: 0}, e: {r: 21, c: 1} },
+                { s: {r: 21, c: 4}, e: {r: 21, c: 4} },
+                { s: {r: 23, c: 4}, e: {r: 23, c: 4} }
             ];
 
             // Định dạng chiều rộng cột tối ưu
             ws['!cols'] = [
                 {wch: 8},  // STT
-                {wch: 20}, // Thời gian
+                {wch: 22}, // Thời gian
                 {wch: 35}, // Nội dung
                 {wch: 22}, // Số tiền
-                {wch: 22}  // Người thu/chi
+                {wch: 25}  // Người thu/chi
             ];
 
             const wb = XLSX.utils.book_new();
@@ -1186,5 +1190,3 @@
     </script>
 </body>
 </html>
-
-```
